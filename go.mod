@@ -2,7 +2,11 @@ module github.com/ammario/scr
 
 go 1.19
 
-require github.com/spf13/cobra v1.6.1
+require (
+	github.com/spf13/cobra v1.6.1
+	go.coder.com/hat v0.0.0-20210823202808-222976f54d7d
+	google.golang.org/api v0.106.0
+)
 
 require (
 	cloud.google.com/go v0.107.0 // indirect
@@ -21,13 +25,11 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
-	go.coder.com/hat v0.0.0-20210823202808-222976f54d7d // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/oauth2 v0.0.0-20221014153046-6fdb5e3db783 // indirect
 	golang.org/x/term v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
-	google.golang.org/api v0.106.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/grpc v1.51.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
