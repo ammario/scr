@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Inter } from "@next/font/google";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
+import { Lock, LockClock } from "@mui/icons-material";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -56,18 +57,9 @@ export default function Home() {
             multiline
           />
           <div className={"flex justify-between py-4"}>
-            <button className="flex items-center">
-              {/* <Add className="mr-1" /> */}
+            <button className="flex items-center create-button" color="success">
+              <LockClock />
               Create
-            </button>
-
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.toString());
-              }}
-            >
-              {/* <CopyAll className="mr-1" /> */}
-              Copy URL
             </button>
           </div>
         </Box>
