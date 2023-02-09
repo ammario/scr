@@ -116,6 +116,15 @@ func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// When peek is set, we don't return the contents but we let the viewer
+	// check the metadata. This is useful for prompting an "are you sure you want
+	// to see the note?"
+	if r.URL.Query().Has("peek") {
+		n.Contents = ""
+		writeJSON(w, http.StatusOK, n)
+		return
+	}
+
 	isExpired := n.ExpiresAt.Before(time.Now())
 	if n.DestroyAfterRead || isExpired {
 		err = s.Storage.Bucket(bucketName).Object(objectID).Delete(context.Background())
