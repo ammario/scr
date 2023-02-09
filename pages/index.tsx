@@ -17,7 +17,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="h-screen w-screen flex flex-col md:container md:mx-auto p-3 md:py-10">
+      <div
+        className="site-container h-screen w-screen flex flex-col md:container sm:px-12 md:px-120 md:mx-auto p-3 md:py-8 lg:px-100"
+        style={{
+          maxWidth: "700px",
+        }}
+      >
         <span className="frontmatter">
           <div className="flex items-center mb-2">
             <Link href="/">
@@ -34,8 +39,9 @@ export default function Home() {
             </div>
           </div>
           <p className="tagline mt-3">
-            s.cr encrypts and decrypts your message within your browser, so our
-            server has no information about its contents.
+            s.cr encrypts your message within your browser, so our server has no
+            information about its contents. All messages expire after a period
+            of time, defaulting to 24 hours.
           </p>
         </span>
 
@@ -49,6 +55,21 @@ export default function Home() {
             rows={10}
             multiline
           />
+          <div className={"flex justify-between py-4"}>
+            <button className="flex items-center">
+              {/* <Add className="mr-1" /> */}
+              Create
+            </button>
+
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.toString());
+              }}
+            >
+              {/* <CopyAll className="mr-1" /> */}
+              Copy URL
+            </button>
+          </div>
         </Box>
       </div>
     </>
