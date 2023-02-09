@@ -5,6 +5,12 @@ import { Inter } from "@next/font/google";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import { Lock, LockClock } from "@mui/icons-material";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import { FormHelperText, MenuItem } from "@mui/material";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -56,6 +62,25 @@ export default function Home() {
             rows={10}
             multiline
           />
+          <div className="flex options">
+            <FormControlLabel
+              className="w-1/2"
+              label="Destroy after read"
+              control={<Checkbox defaultChecked />}
+            />
+
+            <FormControl className="w-1/2">
+              <InputLabel id="demo-simple-select-label">
+                Expires after
+              </InputLabel>
+              <Select id="demo-simple-select" value={10} label="Expires after">
+                <MenuItem value={10}>24 hours</MenuItem>
+                <MenuItem value={20}>3 days</MenuItem>
+                <MenuItem value={30}>7 days</MenuItem>
+                <MenuItem value={30}>30 days</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
           <div className={"flex justify-between py-4"}>
             <button className="flex items-center create-button" color="success">
               <LockClock />

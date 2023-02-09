@@ -42,6 +42,14 @@ p {
   border-radius: 14px;
 }
 
-.MuiOutlinedInput-root {
+.MuiOutlinedInput-root > textarea {
   font-family: "JetBrains Mono", monospace;
+}
+
+.MuiTypography-root {
+  font-family: "Inter var";
+}
+
+.options {
+  margin-top: 1em;
 }
