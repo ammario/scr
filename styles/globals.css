@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input, select {
+    @apply border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:focus:ring-blue-500 dark:focus:border-blue-500
+}
+
+.ingest-container {
+    grid-template-columns: 0.2fr 0.5fr 0.2fr 0.18fr 0.08fr;
+}
+
+.ingest-container span {
+    font-size: 14px;
+    opacity: 0.8;
+    white-space: nowrap;
+}
+
+button {
+    @apply py-2 px-4 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75
+}
+
+a {
+    @apply text-blue-500;
+    text-decoration: underline;
+}
+
+.trash {
+  @apply bg-red-500 px-0 md:px-2 hover:bg-red-700;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+
+p {
+    opacity: 0.64;
+    margin-top: 0px;
+    font-size: 14px;
+}
+
+.tagline {
+    opacity: 1;
+}
+
+h2 {
+    font-size: 16px;
+    opacity: 0.64;
+}
+
+th {
+    text-align: left;
+}
+
+.crosshair {
+    background-color: #323232;
+    color: white;
+    opacity: 0.5;
+    border-color: black;
+}
+
+@media (max-width: 640px) {
+    .ingest-container {
+        gap: 0.2rem;
+    }
+}
