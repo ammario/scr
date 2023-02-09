@@ -5,6 +5,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"math/rand"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	"cdr.dev/slog"
 	"cloud.google.com/go/storage"
 	"github.com/go-chi/chi/v5"
+	"google.golang.org/api/googleapi"
 )
 
 type Server struct {
@@ -36,18 +38,23 @@ func (s *Server) Handler() http.Handler {
 		return http.MaxBytesHandler(h, maxNoteSize*2)
 	})
 	r.Handle("/*", http.FileServer(http.FS(subfs)))
+	r.Route("/api", func(r chi.Router) {
+		r.Post("/notes", s.postNote)
+		r.Get("/notes/{id}", s.getNote)
+	})
 
 	return r
 }
 
-type noteRequest struct {
-	Contents         []byte `json:"contents,omitempty"`
+type note struct {
+	Contents         string `json:"contents,omitempty"`
 	TTL              int    `json:"ttl,omitempty"`
 	DestroyAfterRead bool   `json:"destroy_after_read,omitempty"`
 }
 
-func writeError(w http.ResponseWriter, statusCode int, message string, as ...interface{}) {
+func writePlainText(w http.ResponseWriter, statusCode int, message string, as ...interface{}) {
 	w.WriteHeader(statusCode)
+	w.Header().Set("Content-Type", "text/plain")
 	fmt.Fprintf(w, message, as...)
 }
 
@@ -83,16 +90,71 @@ func (s *Server) findObjectID(ctx context.Context) (string, error) {
 	}
 }
 
+func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
+	objectID := chi.URLParam(r, "id")
+
+	reader, err := s.Storage.Bucket(bucketName).Object(objectID).NewReader(r.Context())
+	if err != nil {
+		if err == storage.ErrObjectNotExist {
+			writePlainText(w, http.StatusNotFound, "Object doesn't exist")
+			return
+		}
+		writePlainText(w, http.StatusInternalServerError, "Something ain't right")
+		return
+	}
+	defer reader.Close()
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	io.Copy(w, reader)
+}
+
 func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
-	var parsedReq noteRequest
+	var parsedReq note
 
 	err := json.NewDecoder(r.Body).Decode(&parsedReq)
 	if err != nil {
-		writeError(w, http.StatusBadRequest, "parse JSON: %v", err)
+		writePlainText(w, http.StatusBadRequest, "parse JSON: %v", err)
 		return
 	}
 	if len(parsedReq.Contents) > maxNoteSize {
-		writeError(w, http.StatusBadRequest, "Contents exceed max note size of %v bytes", maxNoteSize)
+		writePlainText(w, http.StatusBadRequest, "Contents exceed max note size of %v bytes", maxNoteSize)
 		return
 	}
+
+	for attempts := 0; attempts < 10; attempts++ {
+		objectName, err := s.findObjectID(r.Context())
+		if err != nil {
+			writePlainText(w, http.StatusInternalServerError, "An internal error occured")
+			s.Log.Error(r.Context(), "find object id", slog.Error(err))
+			return
+		}
+
+		objectHandle := s.Storage.Bucket(bucketName).Object(objectName).If(storage.Conditions{
+			// Very important!
+			// Conflicts are common and possible due to our ID generation logic.
+			DoesNotExist: true,
+		})
+
+		hw := objectHandle.NewWriter(r.Context())
+		json.NewEncoder(hw).Encode(parsedReq)
+		err = hw.Close()
+		if err != nil {
+			if e, ok := err.(*googleapi.Error); ok {
+				// There was a race condition for the object name.
+				if e.Code == http.StatusPreconditionFailed {
+					hw.Close()
+					continue
+				}
+			}
+			writePlainText(w, http.StatusInternalServerError, "failed to write")
+			s.Log.Error(r.Context(), "write to storage", slog.Error(err))
+			return
+		}
+		writePlainText(w, http.StatusCreated, objectName)
+		return
+	}
+
+	writePlainText(w, http.StatusInternalServerError, "An internal error occured")
+	s.Log.Error(r.Context(), "could not allocate object id in time")
 }
