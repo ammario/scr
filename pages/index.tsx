@@ -46,9 +46,9 @@ export default function Home() {
             </div>
           </div>
           <p className="tagline mt-3">
-            s.cr encrypts your message within your browser, so our server has no
-            information about its contents. All messages expire after a period
-            of time, defaulting to 24 hours.
+            s.cr encrypts your note in your browser, so our server has no
+            information about its contents. All notes expire after a period of
+            time, defaulting to 24 hours.
           </p>
         </span>
 
@@ -73,11 +73,11 @@ export default function Home() {
               <InputLabel id="demo-simple-select-label">
                 Expires after
               </InputLabel>
-              <Select id="demo-simple-select" value={10} label="Expires after">
-                <MenuItem value={10}>24 hours</MenuItem>
-                <MenuItem value={20}>3 days</MenuItem>
-                <MenuItem value={30}>7 days</MenuItem>
-                <MenuItem value={30}>30 days</MenuItem>
+              <Select id="demo-simple-select" value={24} label="Expires after">
+                <MenuItem value={24}>24 hours</MenuItem>
+                <MenuItem value={24 * 3}>3 days</MenuItem>
+                <MenuItem value={24 * 7}>7 days</MenuItem>
+                <MenuItem value={24 * 30}>30 days</MenuItem>
               </Select>
             </FormControl>
           </div>

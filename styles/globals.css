@@ -37,7 +37,7 @@ p {
 }
 
 .frontmatter {
-  background-color: aliceblue;
+  background-color: #a4d5ff;
   padding: 24px;
   border-radius: 14px;
 }
@@ -52,4 +52,8 @@ p {
 
 .options {
   margin-top: 1em;
+}
+
+body {
+  background-color: #f0f0f0;
 }
