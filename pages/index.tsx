@@ -1,4 +1,6 @@
 import Head from "next/head";
+import Link from "next/link";
+import Image from "next/image";
 import { Inter } from "@next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -12,11 +14,25 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="w-full h-2/3">
-        <div className={"flex max-w-fit"}>
-          <p>test</p>
-          <main>Hello world</main>
+      <div className="h-screen w-screen flex flex-col md:container md:mx-auto p-3 md:py-10">
+        <div className="flex items-center mb-2">
+          <Link href="/">
+            <Image
+              width="48"
+              height="48"
+              alt="Icon"
+              src={"/favicon.ico"}
+            ></Image>
+          </Link>
+          <div className="ml-3">
+            <h1>s.cr</h1>
+            <p>Send encrypted, disposable notes</p>
+          </div>
         </div>
+        <p className="tagline mt-3">
+          scr encrypts and decrypts your message within your browser, so our
+          server has no information about its contents.
+        </p>
       </div>
     </>
   );
