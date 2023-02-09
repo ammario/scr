@@ -11,10 +11,51 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import { FormHelperText, MenuItem } from "@mui/material";
+import { useState } from "react";
+import { encryptPayload, generateUserKey } from "@/util/crypto";
+import dayjs from "dayjs";
 
-const inter = Inter({ subsets: ["latin"] });
+interface APINote {
+  content: string;
+  destroy_after_read: boolean;
+  expires_at: string;
+}
 
 export default function Home() {
+  const [payload, setPayload] = useState<string>("");
+  const [destroyAfterRead, setDestroyAfterRead] = useState<boolean>(true);
+  const [expiresAfterHours, setExpiresAfterHours] = useState<number>(24);
+
+  const [createdObjectID, setCreatedObjectID] = useState<string>();
+
+  const handleSubmit = () => {
+    const key = generateUserKey();
+    console.log(key);
+    const ciphertext = encryptPayload(payload, key);
+
+    const request: APINote = {
+      content: ciphertext,
+      destroy_after_read: destroyAfterRead,
+      expires_at: dayjs().add(expiresAfterHours, "hours").toISOString(),
+    };
+
+    fetch("/api/notes", {
+      method: "POST",
+      body: JSON.stringify(request),
+    })
+      .catch((r) => {
+        alert(r);
+      })
+      .then((resp) => {
+        if (resp) {
+          resp.text().then((t) => {
+            setCreatedObjectID(t);
+            console.log("created", t);
+          });
+        }
+      });
+  };
+
   return (
     <>
       <Head>
@@ -53,27 +94,56 @@ export default function Home() {
         </span>
 
         <hr style={{ marginTop: "12px", marginBottom: "16px" }} />
-        <Box component="form" noValidate autoComplete="off">
+
+        <Box
+          component="form"
+          noValidate
+          autoComplete="off"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+          onKeyDown={(e) => {
+            if (e.ctrlKey && e.keyCode === 13) {
+              handleSubmit();
+            }
+          }}
+        >
           <TextField
             id="outlined-textarea"
             className="secret-text"
             fullWidth
-            placeholder="Your deepest, darkest secrets go here."
-            rows={10}
+            placeholder={`Your deepest, darkest secrets go here.
+
+Tip: Press Ctrl+Enter when you're done.`}
+            minRows={8}
+            value={payload}
+            onChange={(e) => setPayload(e.target.value)}
             multiline
           />
           <div className="flex options">
             <FormControlLabel
               className="w-1/2"
               label="Destroy after read"
-              control={<Checkbox defaultChecked />}
+              control={
+                <Checkbox
+                  onChange={() => setDestroyAfterRead(!destroyAfterRead)}
+                  defaultChecked={destroyAfterRead}
+                  value={destroyAfterRead}
+                />
+              }
             />
 
             <FormControl className="w-1/2">
               <InputLabel id="demo-simple-select-label">
                 Expires after
               </InputLabel>
-              <Select id="demo-simple-select" value={24} label="Expires after">
+              <Select
+                id="demo-simple-select"
+                value={expiresAfterHours}
+                onChange={(e) => setExpiresAfterHours(e.target.value as number)}
+                label="Expires after"
+              >
                 <MenuItem value={24}>24 hours</MenuItem>
                 <MenuItem value={24 * 3}>3 days</MenuItem>
                 <MenuItem value={24 * 7}>7 days</MenuItem>
