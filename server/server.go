@@ -5,7 +5,6 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/fs"
 	"math/rand"
 	"net/http"
@@ -47,15 +46,21 @@ func (s *Server) Handler() http.Handler {
 }
 
 type note struct {
-	Contents         string `json:"contents,omitempty"`
-	TTL              int    `json:"ttl,omitempty"`
-	DestroyAfterRead bool   `json:"destroy_after_read,omitempty"`
+	Contents         string    `json:"contents,omitempty"`
+	ExpiresAt        time.Time `json:"expires_at,omitempty"`
+	DestroyAfterRead bool      `json:"destroy_after_read,omitempty"`
 }
 
 func writePlainText(w http.ResponseWriter, statusCode int, message string, as ...interface{}) {
 	w.WriteHeader(statusCode)
 	w.Header().Set("Content-Type", "text/plain")
 	fmt.Fprintf(w, message, as...)
+}
+
+func writeJSON(w http.ResponseWriter, statusCode int, message interface{}) {
+	w.WriteHeader(statusCode)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(message)
 }
 
 const bucketName = "scr-notes"
@@ -104,9 +109,31 @@ func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
 	}
 	defer reader.Close()
 
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	io.Copy(w, reader)
+	var n note
+	err = json.NewDecoder(reader).Decode(&n)
+	if err != nil {
+		writePlainText(w, http.StatusInternalServerError, "note corrupt: %v", err)
+		return
+	}
+
+	isExpired := n.ExpiresAt.Before(time.Now())
+	if n.DestroyAfterRead || isExpired {
+		err = s.Storage.Bucket(bucketName).Object(objectID).Delete(context.Background())
+		if err != nil {
+			s.Log.Error(
+				r.Context(), "destroy note",
+				slog.F("id", objectID), slog.Error(err),
+			)
+		}
+	}
+
+	if isExpired {
+		// sshhh
+		writePlainText(w, http.StatusNotFound, "note not found")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, n)
 }
 
 func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
@@ -119,6 +146,10 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 	}
 	if len(parsedReq.Contents) > maxNoteSize {
 		writePlainText(w, http.StatusBadRequest, "Contents exceed max note size of %v bytes", maxNoteSize)
+		return
+	}
+	if parsedReq.ExpiresAt.After(time.Now().AddDate(0, 0, 30)) {
+		writePlainText(w, http.StatusBadRequest, "Note expires too far into the future")
 		return
 	}
 

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"cdr.dev/slog/sloggers/slogtest"
 	"cloud.google.com/go/storage"
@@ -51,12 +52,13 @@ func TestServer(t *testing.T) {
 	hs := httptest.NewServer(s.Handler())
 	t.Cleanup(hs.Close)
 
-	for i := 0; i < 10; i++ {
-		ht := hat.New(t, hs.URL)
+	ht := hat.New(t, hs.URL)
+	// Happiest path, a bunch of notes are created!
+	for i := 0; i < 5; i++ {
 		contents := fmt.Sprintf("testing-%v", i)
 		body := jsonBody(note{
 			Contents:         contents,
-			TTL:              24,
+			ExpiresAt:        time.Now().Add(time.Second * 10),
 			DestroyAfterRead: true,
 		})
 		resp := ht.Post(hat.Path("/api/notes"), body).Send(ht)
@@ -65,4 +67,16 @@ func TestServer(t *testing.T) {
 		resp.Assert(t, asshat.StatusEqual(http.StatusCreated))
 		ht.Get(hat.Path("/api/notes/"+objectName)).Send(ht).Assert(t, asshat.BodyMatches(contents))
 	}
+
+	// Cannot read expired note.
+	ht.Post(hat.Path("/api/notes"), jsonBody(note{
+		Contents:  "doesn't matter",
+		ExpiresAt: time.Now(),
+	})).Send(ht).Assert(t, asshat.StatusEqual(http.StatusCreated))
+
+	// Can read Destroy after Read note... once
+	ht.Post(hat.Path("/api/notes"), jsonBody(note{
+		Contents:  "doesn't matter",
+		ExpiresAt: time.Now(),
+	})).Send(ht).Assert(t, asshat.StatusEqual(http.StatusCreated))
 }
