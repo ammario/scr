@@ -112,7 +112,7 @@ export default function ViewNote() {
                 <button
                   className="flex items-center create-button reply-button"
                   onClick={() => {
-                    window.location.href = "/";
+                    router.push("/");
                   }}
                 >
                   <Reply />
