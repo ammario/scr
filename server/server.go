@@ -100,7 +100,12 @@ func (s *Server) findObjectID(ctx context.Context) (string, error) {
 
 	var name string
 	for {
+		// Minimum name of 4 characters
 		name += string(randNoteChar())
+		if len(name) < 4 {
+			continue
+		}
+
 		obj := bucket.Object(name)
 		_, err := obj.Attrs(ctx)
 		if err != nil {
@@ -114,6 +119,8 @@ func (s *Server) findObjectID(ctx context.Context) (string, error) {
 
 func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
 	objectID := chi.URLParam(r, "id")
+
+	w.Header().Set("Cache-Control", "no-cache")
 
 	reader, err := s.Storage.Bucket(bucketName).Object(objectID).NewReader(r.Context())
 	if err != nil {
