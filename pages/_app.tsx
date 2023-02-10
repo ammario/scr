@@ -46,7 +46,11 @@ export default function App({ Component, pageProps }: AppProps) {
               ></Image>
             </a>
             <div className="ml-3">
-              <h1>s.cr</h1>
+              <h1>
+                <a href="/" style={{ color: "black" }}>
+                  s.cr
+                </a>
+              </h1>
               <p>Send encrypted, disposable notes</p>
             </div>
           </div>

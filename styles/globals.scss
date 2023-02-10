@@ -85,6 +85,14 @@ $friendlyPurple: #c9b2ff;
   border-width: 2px;
 }
 
+.success-box {
+  @apply text-center;
+  padding: 10px;
+  background-color: #71ff97;
+  border-color: black;
+  border-style: solid;
+  border-width: 1px;
+}
 
 .view-box {
   background-color: $friendlyPurple;

@@ -24,6 +24,8 @@ export default function ViewNote() {
     }
   >();
 
+  const [copySuccess, setCopySuccess] = useState<boolean>(false);
+
   useEffect(() => {
     // For whatever reason, the path starts as "..."
     if (objectID.indexOf("...") >= 0) {
@@ -65,11 +67,22 @@ export default function ViewNote() {
       {note && (
         <>
           <p>
-            This note expires in
-            {" " +
-              // @ts-ignore
-              dayjs.duration(dayjs(note.expires_at).diff(dayjs())).humanize()}
-            .
+            {note.destroy_after_read ? (
+              <>
+                This note will only be shown <b>once</b>. Save it somewhere else
+                before exiting the tab!
+              </>
+            ) : (
+              <>
+                This note expires in
+                {" " +
+                  dayjs
+                    // @ts-ignore
+                    .duration(dayjs(note.expires_at).diff(dayjs()))
+                    .humanize()}
+                .
+              </>
+            )}
           </p>
           <div className="view-box">{note.cleartext}</div>
           <div className={"flex justify-between py-4"}>
@@ -77,12 +90,18 @@ export default function ViewNote() {
               className="flex items-center create-button black-button"
               onClick={() => {
                 navigator.clipboard.writeText(note.cleartext);
+                setCopySuccess(true);
               }}
             >
               <CopyAll />
               Copy
             </button>
           </div>
+          {copySuccess && (
+            <div className="success-box">
+              Successfully copied note to clipbard.
+            </div>
+          )}
         </>
       )}
     </>

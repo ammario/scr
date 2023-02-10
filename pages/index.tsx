@@ -35,6 +35,7 @@ export default function Home() {
   const [expiresAfterHours, setExpiresAfterHours] = useState<number>(24);
 
   const [createdNote, setCreatedObjectID] = useState<createdNote>();
+  const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
   const handleSubmit = () => {
     const key = generateUserKey();
@@ -148,12 +149,18 @@ Tip: Press Ctrl+Enter when you're done.`}
               className="flex items-center create-button black-button"
               onClick={() => {
                 navigator.clipboard.writeText(createdNoteURL(createdNote));
+                setCopySuccess(true);
               }}
             >
               <CopyAll />
               Copy URL
             </button>
           </div>
+          {copySuccess && (
+            <div className="success-box">
+              Successfully copied URL to clipboard.
+            </div>
+          )}
         </>
       )}
     </>
