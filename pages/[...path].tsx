@@ -72,7 +72,7 @@ export default function ViewNote() {
   return (
     <>
       {err && <div className="error-box">{err}</div>}
-      {note && (
+      {note && err === undefined && (
         <>
           {note.cleartext !== undefined ? (
             <>
