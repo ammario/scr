@@ -157,6 +157,12 @@ func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
 				r.Context(), "destroy note",
 				slog.F("id", objectID), slog.Error(err),
 			)
+			if err == storage.ErrObjectNotExist {
+				// I'm not sure why this happens, but it does, and the object
+				// is always actually still deleted. Let's just 404.
+				writePlainText(w, http.StatusNotFound, "note not found")
+				return
+			}
 		}
 	}
 
