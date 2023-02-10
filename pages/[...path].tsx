@@ -29,7 +29,7 @@ export default function ViewNote() {
   const retrieveNote = (peek: boolean) => {
     try {
       console.log("retrieving", objectID, key);
-      fetch("/api/notes" + objectID + (peek ? "/?peek=true" : ""), {
+      fetch("/api/notes" + objectID + (peek ? "?peek=true" : ""), {
         method: "GET",
       }).then((resp) => {
         if (resp.status == 404) {

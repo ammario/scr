@@ -44,12 +44,12 @@ func (s *Server) Handler() http.Handler {
 	// Oh man is this janky.
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		switch {
+		case r.URL.Path == "/faq":
+			r.URL.Path = "/faq.html"
 		case len(r.URL.Path) > 1 && strings.Count(r.URL.Path, "/") == 1 && !strings.Contains(r.URL.Path, "."):
 			// Redirect "view" directives to the index.html.
 			w.Header().Set("Redirected-From", r.URL.Path)
 			r.URL.Path = "[...path].html"
-		case r.URL.Path == "/faq":
-			r.URL.Path = "/faq.html"
 		}
 		fileServer.ServeHTTP(w, r)
 	})
