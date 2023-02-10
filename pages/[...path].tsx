@@ -35,7 +35,7 @@ export default function ViewNote() {
         method: "GET",
       }).then((resp) => {
         if (resp.status == 404) {
-          setErr("Note has vanished into the abyss...");
+          setErr("This note has vanished into the abyss...");
           return;
         }
         resp.json().then((note: apiNote) => {

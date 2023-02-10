@@ -37,14 +37,14 @@ export default function App({ Component, pageProps }: AppProps) {
       >
         <span className="frontmatter">
           <div className="flex items-center mb-2">
-            <Link href="/">
+            <a href="/">
               <Image
                 width="48"
                 height="48"
                 alt="Icon"
                 src={"/favicon.ico"}
               ></Image>
-            </Link>
+            </a>
             <div className="ml-3">
               <h1>s.cr</h1>
               <p>Send encrypted, disposable notes</p>
