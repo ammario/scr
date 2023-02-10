@@ -62,9 +62,11 @@ body {
   background-color: #f0f0f0;
 }
 
+$friendlyPurple: #c9b2ff;
+
 .copy-url-box {
   @apply text-center;
-  background-color: #ffc0bd;
+  background-color: $friendlyPurple;
   padding: 10px;
 
   font-weight: bold;
@@ -83,8 +85,9 @@ body {
   border-width: 2px;
 }
 
+
 .view-box {
-  background-color: #c9b2ff;
+  background-color: $friendlyPurple;
   padding: 20px;
   margin-top: 10px;
   font-family: "JetBrains Mono";

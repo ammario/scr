@@ -5,6 +5,7 @@ import Home, { apiNote } from ".";
 var duration = require("dayjs/plugin/duration");
 var relativeTime = require("dayjs/plugin/relativeTime");
 import dayjs from "dayjs";
+import { CopyAll } from "@mui/icons-material";
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -34,7 +35,7 @@ export default function ViewNote() {
         method: "GET",
       }).then((resp) => {
         if (resp.status == 404) {
-          setErr("Note no longer exists!");
+          setErr("Note has vanished into the abyss...");
           return;
         }
         resp.json().then((note: apiNote) => {
@@ -71,6 +72,17 @@ export default function ViewNote() {
             .
           </p>
           <div className="view-box">{note.cleartext}</div>
+          <div className={"flex justify-between py-4"}>
+            <button
+              className="flex items-center create-button black-button"
+              onClick={() => {
+                navigator.clipboard.writeText(note.cleartext);
+              }}
+            >
+              <CopyAll />
+              Copy
+            </button>
+          </div>
         </>
       )}
     </>
