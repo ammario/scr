@@ -19,6 +19,10 @@ button {
   @apply w-full justify-center;
 }
 
+.reply-button {
+  background-color: #38a0a3;
+}
+
 .read-button {
   background-color: #ffa200;
   color: black;
@@ -41,11 +45,11 @@ $bannerColor: #2D46A3;
 
 // TODO: find nice yellow
 // .MuiFormControl-root.secret-text {
-//   background-color: #fff7d9;
+//   background-color: lighten($bannerColor, 95%);
 // }
 
 .MuiFormControl-root {
-  background-color: lighten($bannerColor, 90%);
+  background-color: white;
 }
 
 a {

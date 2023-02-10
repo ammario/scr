@@ -5,7 +5,7 @@ import Home, { apiNote } from ".";
 var duration = require("dayjs/plugin/duration");
 var relativeTime = require("dayjs/plugin/relativeTime");
 import dayjs from "dayjs";
-import { CopyAll } from "@mui/icons-material";
+import { CopyAll, Reply } from "@mui/icons-material";
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -95,7 +95,10 @@ export default function ViewNote() {
                 )}
               </p>
               <div className="view-box">{note.cleartext}</div>
-              <div className={"flex justify-between py-4"}>
+              <div
+                className={"flex justify-between py-4"}
+                style={{ gap: "10px" }}
+              >
                 <button
                   className="flex items-center create-button black-button"
                   onClick={() => {
@@ -105,6 +108,15 @@ export default function ViewNote() {
                 >
                   <CopyAll />
                   Copy
+                </button>
+                <button
+                  className="flex items-center create-button reply-button"
+                  onClick={() => {
+                    window.location.href = "/";
+                  }}
+                >
+                  <Reply />
+                  Reply
                 </button>
               </div>
               {copySuccess && (

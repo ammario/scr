@@ -10,6 +10,11 @@ export default function ViewNote() {
         before passing into AES-256. <br /> <br />
         But, you can only trust this site as much as you trust these claims.
       </p>
+      <h1>How does this compare to privnote?</h1>
+      <p className="faq-answer">
+        The basic functionality is the same, but s.cr has no ads or trackers,
+        and the URLs are shorter.
+      </p>
       <h1>Who are you?</h1>
       <p className="faq-answer">
         I'm <a href="https://ammar.io">Ammar</a>. You can reach me{" "}
