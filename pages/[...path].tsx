@@ -109,7 +109,7 @@ export default function ViewNote() {
               </div>
               {copySuccess && (
                 <div className="success-box">
-                  Successfully copied note to clipbard.
+                  Successfully copied note to clipboard.
                 </div>
               )}
             </>

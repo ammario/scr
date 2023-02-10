@@ -30,12 +30,13 @@ button {
   background-color: black;
 }
 
-$bannerColor: #a4d5ff;
+$bannerColor: #2D46A3;
 
 .frontmatter {
-  background-color: lighten($bannerColor, 6%);
+  background-color: $bannerColor;
   padding: 24px;
   border-radius: 4px;
+  color: white;
 }
 
 // TODO: find nice yellow
@@ -86,11 +87,15 @@ body {
 }
 
 $friendlyPurple: #c9b2ff;
+$deepPurple: #a32e80;
 
 #copy-url-box {
   @apply text-center;
-  background-color: $friendlyPurple;
+  background-color: $deepPurple;
+  color: aliceblue;
   padding: 10px;
+  resize: none;
+  border-radius: 4px;
 
   font-weight: bold;
   border-color: black;
@@ -108,17 +113,21 @@ $friendlyPurple: #c9b2ff;
   border-width: 2px;
 }
 
+$notePadYellow: #fff16b;
+
 .success-box {
   @apply text-center;
   padding: 10px;
-  background-color: #71ff97;
+  background-color: #8bff80;
+  border-radius: 4px;
   border-color: black;
   border-style: solid;
   border-width: 1px;
 }
 
 .view-box {
-  background-color: $friendlyPurple;
+  background-color: $notePadYellow;
+  color: black;
   padding: 20px;
   margin-top: 10px;
   font-family: "JetBrains Mono";
@@ -127,6 +136,7 @@ $friendlyPurple: #c9b2ff;
   border-style: dashed;
   // Preserve formatting
   white-space: pre-wrap;;
+  border-radius: 4px;
 }
 
 .faq-answer {
