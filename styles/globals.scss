@@ -114,6 +114,8 @@ $friendlyPurple: #c9b2ff;
   border-color: black;
   border-style: dashed;
   overflow-wrap: break-word;
+  // Preserve formatting
+  white-space: pre;
 }
 
 .faq-answer {
