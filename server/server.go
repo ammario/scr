@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 
 	"cdr.dev/slog"
@@ -21,13 +22,13 @@ type Server struct {
 	Storage *storage.Client
 }
 
-//go:embed dist/**
-var statisFS embed.FS
+//go:embed all:dist/**
+var staticFS embed.FS
 
 const maxNoteSize = 100 << 20
 
 func (s *Server) Handler() http.Handler {
-	subfs, err := fs.Sub(statisFS, "dist")
+	subfs, err := fs.Sub(staticFS, "dist")
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +37,20 @@ func (s *Server) Handler() http.Handler {
 	r.Use(func(h http.Handler) http.Handler {
 		return http.MaxBytesHandler(h, maxNoteSize*2)
 	})
-	r.Handle("/*", http.FileServer(http.FS(subfs)))
+
+	fileServer := http.FileServer(http.FS(subfs))
+	// r.Handle("/*", fileServer)
+
+	// Oh man is this janky.
+	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		// Redirect "view" directives to the index.html.
+		if len(r.URL.Path) > 1 && strings.Count(r.URL.Path, "/") == 1 && !strings.Contains(r.URL.Path, ".") {
+			w.Header().Set("Redirected-From", r.URL.Path)
+			r.URL.Path = "[...path].html"
+		}
+		fileServer.ServeHTTP(w, r)
+	})
+
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/notes", s.postNote)
 		r.Get("/notes/{id}", s.getNote)

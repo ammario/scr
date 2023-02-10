@@ -31,7 +31,7 @@ export default function ViewNote() {
     }
     try {
       console.log("retrieving", objectID, key);
-      fetch("/api/notes/" + objectID, {
+      fetch("/api/notes" + objectID, {
         method: "GET",
       }).then((resp) => {
         if (resp.status == 404) {
