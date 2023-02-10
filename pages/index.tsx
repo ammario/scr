@@ -14,18 +14,18 @@ import { useState } from "react";
 import { encryptPayload, generateUserKey } from "@/util/crypto";
 import dayjs from "dayjs";
 
-interface APINote {
-  content: string;
+export interface apiNote {
+  contents: string;
   destroy_after_read: boolean;
   expires_at: string;
 }
 
-interface createdObject {
+interface createdNote {
   id: string;
   key: string;
 }
 
-function createdNoteURL(o: createdObject): string {
+function createdNoteURL(o: createdNote): string {
   return location.origin + "/" + o.id + "#" + o.key;
 }
 
@@ -34,15 +34,15 @@ export default function Home() {
   const [destroyAfterRead, setDestroyAfterRead] = useState<boolean>(true);
   const [expiresAfterHours, setExpiresAfterHours] = useState<number>(24);
 
-  const [createdNote, setCreatedObjectID] = useState<createdObject>();
+  const [createdNote, setCreatedObjectID] = useState<createdNote>();
 
   const handleSubmit = () => {
     const key = generateUserKey();
     console.log(key);
     const ciphertext = encryptPayload(payload, key);
 
-    const request: APINote = {
-      content: ciphertext,
+    const request: apiNote = {
+      contents: ciphertext,
       destroy_after_read: destroyAfterRead,
       expires_at: dayjs().add(expiresAfterHours, "hours").toISOString(),
     };

@@ -72,3 +72,23 @@ body {
   border-style: dotted;
   border-width: 2px;
 }
+
+.error-box {
+  @apply text-center;
+  padding: 10px;
+  background-color: #ff7771;
+  font-weight: bold;
+  border-color: black;
+  border-style: solid;
+  border-width: 2px;
+}
+
+.view-box {
+  background-color: #c9b2ff;
+  padding: 20px;
+  margin-top: 10px;
+  font-family: "JetBrains Mono";
+  border-width: 2px;
+  border-color: black;
+  border-style: dashed;
+}

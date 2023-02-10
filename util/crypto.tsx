@@ -17,7 +17,7 @@ export const generateUserKey = (): string => {
 
 const expandKey = (key: string): string => {
   // this can never change
-  return pbkdf2Sync(key, "s.cr!", 1000, 32, "sha512").toString();
+  return pbkdf2Sync(key, "s.cr!", 128, 32, "sha512").toString();
 };
 
 export const encryptPayload = (payload: string, key: string): string => {
