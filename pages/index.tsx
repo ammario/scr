@@ -9,7 +9,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
-import { FormHelperText, MenuItem } from "@mui/material";
+import { FormHelperText, Input, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { encryptPayload, generateUserKey } from "@/util/crypto";
 import dayjs from "dayjs";
@@ -143,7 +143,23 @@ Tip: Press Ctrl+Enter when you're done.`}
             Your note has been created. Share the following URL with the
             intended recipient.
           </p>
-          <div className="copy-url-box">{createdNoteURL(createdNote)}</div>
+          <textarea
+            id="copy-url-box"
+            readOnly
+            rows={1}
+            onMouseEnter={(e) => {
+              // @ts-ignore
+              e.target.select();
+            }}
+            onMouseLeave={(e) => {
+              // @ts-ignore
+              const sel = window.getSelection();
+              if (sel) {
+                sel.empty();
+              }
+            }}
+            value={createdNoteURL(createdNote)}
+          ></textarea>
           <div className={"flex justify-between py-4"}>
             <button
               className="flex items-center create-button black-button"
