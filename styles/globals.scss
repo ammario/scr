@@ -19,6 +19,17 @@ button {
   @apply w-full justify-center;
 }
 
+.read-button {
+  background-color: #ffa200;
+  color: black;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.read-button:hover {
+  background-color: black;
+}
+
 a {
   @apply text-blue-500;
   text-decoration: underline;
@@ -102,4 +113,8 @@ $friendlyPurple: #c9b2ff;
   border-width: 2px;
   border-color: black;
   border-style: dashed;
+}
+
+.faq-answer {
+  padding-bottom: 16px;
 }

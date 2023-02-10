@@ -57,7 +57,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <p className="tagline mt-3">
             s.cr encrypts your note in your browser, so our server has no
             information about its content. All notes expire after a period of
-            time, defaulting to 24 hours.
+            time, defaulting to 24 hours. <a href="/faq">FAQ</a>.
           </p>
         </span>
 

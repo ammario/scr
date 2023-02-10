@@ -43,10 +43,13 @@ func (s *Server) Handler() http.Handler {
 
 	// Oh man is this janky.
 	r.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		// Redirect "view" directives to the index.html.
-		if len(r.URL.Path) > 1 && strings.Count(r.URL.Path, "/") == 1 && !strings.Contains(r.URL.Path, ".") {
+		switch {
+		case len(r.URL.Path) > 1 && strings.Count(r.URL.Path, "/") == 1 && !strings.Contains(r.URL.Path, "."):
+			// Redirect "view" directives to the index.html.
 			w.Header().Set("Redirected-From", r.URL.Path)
 			r.URL.Path = "[...path].html"
+		case r.URL.Path == "/faq":
+			r.URL.Path = "/faq.html"
 		}
 		fileServer.ServeHTTP(w, r)
 	})
@@ -133,7 +136,7 @@ func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
 	// When peek is set, we don't return the contents but we let the viewer
 	// check the metadata. This is useful for prompting an "are you sure you want
 	// to see the note?"
-	if r.URL.Query().Has("peek") {
+	if r.URL.Query().Has("peek") && n.DestroyAfterRead {
 		n.Contents = ""
 		writeJSON(w, http.StatusOK, n)
 		return
