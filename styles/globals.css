@@ -11,6 +11,10 @@ button {
   @apply py-2 px-4 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75;
 }
 
+.black-button {
+  background-color: black;
+}
+
 .create-button {
   @apply w-full justify-center;
 }
@@ -56,4 +60,15 @@ p {
 
 body {
   background-color: #f0f0f0;
+}
+
+.copy-url-box {
+  @apply text-center;
+  background-color: #ffc0bd;
+  padding: 10px;
+
+  font-weight: bold;
+  border-color: black;
+  border-style: dotted;
+  border-width: 2px;
 }
