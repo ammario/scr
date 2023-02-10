@@ -1,7 +1,7 @@
 .PHONY: build-frontend
 
 build-frontend:
-	rm -rf server/dist/* .next/*
+	# rm -rf server/dist/* .next/*
 	yarn build && yarn next export -o server/dist
 
 build-go: build-frontend

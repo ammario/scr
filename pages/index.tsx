@@ -86,7 +86,7 @@ export default function Home() {
           }}
         >
           <TextField
-            id="outlined-textarea"
+            id="secret-input"
             className="secret-text"
             fullWidth
             placeholder={`Your deepest, darkest secrets go here.
