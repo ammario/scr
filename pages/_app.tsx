@@ -42,6 +42,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 width="48"
                 height="48"
                 alt="Icon"
+                className="logo"
                 src={"/favicon.ico"}
               ></Image>
             </a>
