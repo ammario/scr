@@ -19,9 +19,13 @@ button {
   background-color: black;
 }
 
+@mixin border() {
+  border-radius: 4px;
+}
+
 button {
   @apply w-full justify-center;
-  border-radius: 4px;
+  @include border;
 }
 
 .create-button {
@@ -47,7 +51,7 @@ button {
 .frontmatter {
   background-color: $deepBlue;
   padding: 24px;
-  border-radius: 4px;
+  @include border;
   color: white;
 }
 
@@ -107,7 +111,7 @@ $deepPurple: #a32e80;
   color: aliceblue;
   padding: 10px;
   resize: none;
-  border-radius: 4px;
+  @include border;
 
   font-weight: bold;
   border-color: black;
@@ -117,12 +121,16 @@ $deepPurple: #a32e80;
 
 .error-box {
   @apply text-center;
+  @include border;
+
   padding: 10px;
-  background-color: #ff7771;
+  background-color: #B30117;
   font-weight: bold;
+  color: white;
   border-color: black;
   border-style: solid;
-  border-width: 2px;
+  border-width: 1px;
+  margin-bottom: 10px;
 }
 
 
@@ -131,7 +139,7 @@ $deepPurple: #a32e80;
   padding: 10px;
   background-color: $dreamyTeal;
   color: white;
-  border-radius: 4px;
+  @include border;
   border-color: black;
   border-style: solid;
   border-width: 1px;
@@ -149,7 +157,7 @@ $deepPurple: #a32e80;
   // Preserve formatting
   white-space: pre-wrap;
   word-break: break-word;
-  border-radius: 4px;
+  @include border;
 }
 
 .faq-answer {

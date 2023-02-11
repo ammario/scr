@@ -60,7 +60,7 @@ export default function App({ Component, pageProps }: AppProps) {
           </div>
           <p className="tagline mt-3">
             s.cr encrypts your note in your browser, so only you and the
-            recipient knows its content. All notes self-destruct after a period
+            recipient know its content. All notes self-destruct after a period
             of time, defaulting to 24 hours. <a href="/faq">FAQ</a>.
           </p>
         </span>

@@ -13,6 +13,7 @@ import { FormHelperText, Input, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { encryptPayload, generateUserKey } from "@/util/crypto";
 import dayjs from "dayjs";
+import { ErrorBox } from "@/components/ErrorBox";
 
 export interface apiNote {
   contents: string;
@@ -36,8 +37,13 @@ export default function Home() {
 
   const [createdNote, setCreatedObjectID] = useState<createdNote>();
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
+  const [createErrorMessage, setCreateErrorMessage] = useState<string>();
 
   const handleSubmit = () => {
+    if (payload.length == 0) {
+      setCreateErrorMessage("Empty notes are not allowed.");
+      return;
+    }
     const key = generateUserKey();
     console.log(key);
     const ciphertext = encryptPayload(payload, key);
@@ -62,6 +68,7 @@ export default function Home() {
               id: t,
               key: key,
             });
+            setCreateErrorMessage(undefined);
             console.log("created", t);
           });
         }
@@ -70,6 +77,9 @@ export default function Home() {
 
   return (
     <>
+      {createErrorMessage !== undefined ? (
+        <ErrorBox>{createErrorMessage}</ErrorBox>
+      ) : null}
       {createdNote === undefined ? (
         <Box
           component="form"

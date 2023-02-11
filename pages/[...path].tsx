@@ -6,6 +6,7 @@ var duration = require("dayjs/plugin/duration");
 var relativeTime = require("dayjs/plugin/relativeTime");
 import dayjs from "dayjs";
 import { CopyAll, Reply } from "@mui/icons-material";
+import { ErrorBox } from "@/components/ErrorBox";
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
@@ -33,7 +34,7 @@ export default function ViewNote() {
         method: "GET",
       }).then((resp) => {
         if (resp.status == 404) {
-          setErr("There's nothing here.");
+          setErr("This note doesn't exist.");
           return;
         }
         resp.json().then((note: apiNote) => {
@@ -71,7 +72,7 @@ export default function ViewNote() {
 
   return (
     <>
-      {err && <div className="error-box">{err}</div>}
+      {err && <ErrorBox>{err}</ErrorBox>}
       {note && err === undefined && (
         <>
           {note.cleartext !== undefined ? (
