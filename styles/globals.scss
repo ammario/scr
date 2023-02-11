@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+$notePadYellow: #fff16b;
+$dreamyTeal: #38a0a3;
+
 input,
 select {
   @apply border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:focus:ring-blue-500 dark:focus:border-blue-500;
@@ -15,13 +18,16 @@ button {
   background-color: black;
 }
 
+button {
+  border-radius: 4px;
+}
+
 .create-button {
   @apply w-full justify-center;
 }
 
 .reply-button {
-  background-color: #38a0a3;
-  color: black;
+  background-color: $dreamyTeal;
 }
 
 .read-button {
@@ -96,7 +102,7 @@ $deepPurple: #a32e80;
 
 #copy-url-box {
   @apply text-center;
-  background-color: $deepPurple;
+  background-color: #4d4d4d;
   color: aliceblue;
   padding: 10px;
   resize: none;
@@ -118,12 +124,11 @@ $deepPurple: #a32e80;
   border-width: 2px;
 }
 
-$notePadYellow: #fff16b;
 
 .success-box {
   @apply text-center;
   padding: 10px;
-  background-color: $bannerColor;
+  background-color: $dreamyTeal;
   color: white;
   border-radius: 4px;
   border-color: black;
