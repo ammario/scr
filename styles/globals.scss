@@ -4,6 +4,7 @@
 
 $notePadYellow: #fff16b;
 $dreamyTeal: #38a0a3;
+$deepBlue: #2D46A3;
 
 input,
 select {
@@ -19,11 +20,12 @@ button {
 }
 
 button {
+  @apply w-full justify-center;
   border-radius: 4px;
 }
 
 .create-button {
-  @apply w-full justify-center;
+  background-color: $deepBlue;
 }
 
 .reply-button {
@@ -41,10 +43,9 @@ button {
   background-color: black;
 }
 
-$bannerColor: #2D46A3;
 
 .frontmatter {
-  background-color: $bannerColor;
+  background-color: $deepBlue;
   padding: 24px;
   border-radius: 4px;
   color: white;
@@ -146,7 +147,8 @@ $deepPurple: #a32e80;
   border-color: black;
   border-style: dashed;
   // Preserve formatting
-  white-space: pre-wrap;;
+  white-space: pre-wrap;
+  word-break: break-word;
   border-radius: 4px;
 }
 

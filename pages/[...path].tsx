@@ -33,7 +33,7 @@ export default function ViewNote() {
         method: "GET",
       }).then((resp) => {
         if (resp.status == 404) {
-          setErr("There's nothing here. Good luck on your next adventure.");
+          setErr("There's nothing here.");
           return;
         }
         resp.json().then((note: apiNote) => {
@@ -79,7 +79,7 @@ export default function ViewNote() {
               <p>
                 {note.destroy_after_read ? (
                   <>
-                    This note will only be shown <b>once</b>. Save it somewhere
+                    <b>This note will only be shown once</b>. Save it somewhere
                     else before exiting the tab!
                   </>
                 ) : (
@@ -127,8 +127,8 @@ export default function ViewNote() {
             </>
           ) : (
             <>
-              After you read this note, there will be zero trace that it ever
-              existed. Are you ready for this commitment?
+              This note will be permanently deleted once it's read. Are you
+              ready to proceed?
               <button
                 className="flex items-center create-button read-button"
                 onClick={() => {

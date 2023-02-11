@@ -15,6 +15,12 @@ export default function ViewNote() {
         The basic functionality is the same, but s.cr has no ads or trackers,
         and the URLs are shorter.
       </p>
+      <h1>What is it used for?</h1>
+      <p className="faq-answer">
+        While s.cr could be used for any number of reasons, I use it for sharing
+        passwords, secret keys, and messages that I may not want to be
+        associated with in the future.
+      </p>
       <h1>Who are you?</h1>
       <p className="faq-answer">
         I'm <a href="https://ammar.io">Ammar</a>. You can reach me{" "}

@@ -32,7 +32,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <div
         className="site-container h-screen w-screen flex flex-col md:container sm:px-12 md:px-120 md:mx-auto p-3 md:py-8 lg:px-100"
         style={{
-          maxWidth: "700px",
+          maxWidth: "800px",
         }}
       >
         <span className="frontmatter">
@@ -59,9 +59,9 @@ export default function App({ Component, pageProps }: AppProps) {
             </div>
           </div>
           <p className="tagline mt-3">
-            s.cr encrypts your note in your browser, so our server has no
-            information about its content. All notes expire after a period of
-            time, defaulting to 24 hours. <a href="/faq">FAQ</a>.
+            s.cr encrypts your note in your browser, so only you and the
+            recipient knows its content. All notes self-destruct after a period
+            of time, defaulting to 24 hours. <a href="/faq">FAQ</a>.
           </p>
         </span>
 

@@ -120,6 +120,8 @@ Tip: Press Ctrl+Enter when you're done.`}
                 onChange={(e) => setExpiresAfterHours(e.target.value as number)}
                 label="Expires after"
               >
+                <MenuItem value={1}>1 hour</MenuItem>
+                <MenuItem value={8}>8 hours</MenuItem>
                 <MenuItem value={24}>24 hours</MenuItem>
                 <MenuItem value={24 * 3}>3 days</MenuItem>
                 <MenuItem value={24 * 7}>7 days</MenuItem>
