@@ -99,7 +99,7 @@ export default function Home() {
             id="secret-input"
             className="secret-text"
             fullWidth
-            placeholder={`Your deepest, darkest secrets go here.
+            placeholder={`Your private note goes here.
 
 Tip: Press Ctrl+Enter when you're done.`}
             minRows={8}
