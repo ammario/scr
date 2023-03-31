@@ -23,7 +23,6 @@ export default function App({ Component, pageProps }: AppProps) {
           name="description"
           content="Securely send self-destructing notes."
         />
-        <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
         <link
           href="https://fonts.cdnfonts.com/css/jetbrains-mono"
           rel="stylesheet"
