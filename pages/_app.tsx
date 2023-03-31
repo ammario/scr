@@ -54,14 +54,12 @@ export default function App({ Component, pageProps }: AppProps) {
                   s.cr
                 </a>
               </h1>
-              <p>Send encrypted, disposable notes</p>
+              <p>
+                Send encrypted, disposable notes.{" "}
+                <a href="/about">Learn more.</a>
+              </p>
             </div>
           </div>
-          <p className="tagline mt-3">
-            s.cr encrypts your note in your browser, so only you and the
-            recipient know its content. All notes self-destruct after a period
-            of time, defaulting to 24 hours. <a href="/faq">FAQ</a>.
-          </p>
         </span>
 
         <hr style={{ marginTop: "12px", marginBottom: "16px" }} />

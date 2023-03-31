@@ -1,6 +1,12 @@
 export default function ViewNote() {
   return (
     <>
+      <h1>What is s.cr?</h1>
+      <p className="faq-answer">
+        s.cr encrypts your note in your browser, so only you and the recipient
+        know its content. All notes self-destruct after a period of time,
+        defaulting to 24 hours.
+      </p>
       <h1>Why is this secure?</h1>
       <p className="faq-answer">
         s.cr stores the encryption key within your URL fragment{" "}

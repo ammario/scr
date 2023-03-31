@@ -50,11 +50,18 @@ button {
 }
 
 
+
 .frontmatter {
-  background-color: $deepBlue;
+  background: $deepBlue;
   padding: 24px;
   @include border;
   color: white;
+  p {
+    a {
+      color: white;
+      font-weight: 400;
+    }
+  }
 }
 
 // TODO: find nice yellow
@@ -93,7 +100,7 @@ p {
 }
 
 .MuiTypography-root {
-  font-family: "Inter var";
+  font-family: "Inter";
 }
 
 .options {
