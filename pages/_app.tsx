@@ -9,7 +9,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>s.cr — encrypted, disposable notes</title>
+        <title>s.cr — encrypted, self-destructing notes</title>
         <meta
           name="description"
           content="Securely send encrypted, self-destructing notes."
@@ -22,10 +22,6 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta
           name="description"
           content="Securely send self-destructing notes."
-        />
-        <link
-          href="https://fonts.cdnfonts.com/css/jetbrains-mono"
-          rel="stylesheet"
         />
       </Head>
       <div
@@ -55,7 +51,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 </a>
               </h1>
               <p>
-                Send encrypted, disposable notes.{" "}
+                Send encrypted, self-destructing notes.{" "}
                 <a href="/about">Learn more.</a>
               </p>
             </div>
