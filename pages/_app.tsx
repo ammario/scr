@@ -29,7 +29,7 @@ export default function App({ Component, pageProps }: AppProps) {
         />
       </Head>
       <div
-        className="site-container h-screen w-screen flex flex-col md:container sm:px-12 md:px-120 md:mx-auto p-3 md:py-8 lg:px-100"
+        className="site-container h-screen w-screen flex flex-col md:container sm:px-12 md:px-120 md:mx-auto p-3 lg:px-100"
         style={{
           maxWidth: "800px",
         }}
