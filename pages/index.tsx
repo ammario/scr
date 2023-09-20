@@ -51,22 +51,24 @@ export default function Home() {
     const request: apiNote = {
       contents: ciphertext,
       destroy_after_read: destroyAfterRead,
-      expires_at: dayjs().add(expiresAfterHours, "hours").toISOString(),
+      expires_at: dayjs()
+        .add(expiresAfterHours, "hours")
+        .toISOString()
     };
 
     fetch("/api/notes", {
       method: "POST",
-      body: JSON.stringify(request),
+      body: JSON.stringify(request)
     })
-      .catch((r) => {
+      .catch(r => {
         alert(r);
       })
-      .then((resp) => {
+      .then(resp => {
         if (resp) {
-          resp.text().then((t) => {
+          resp.text().then(t => {
             setCreatedObjectID({
               id: t,
-              key: key,
+              key: key
             });
             setCreateErrorMessage(undefined);
             console.log("created", t);
@@ -85,11 +87,11 @@ export default function Home() {
           component="form"
           noValidate
           autoComplete="off"
-          onSubmit={(e) => {
+          onSubmit={e => {
             e.preventDefault();
             handleSubmit();
           }}
-          onKeyDown={(e) => {
+          onKeyDown={e => {
             if (e.ctrlKey && e.keyCode === 13) {
               handleSubmit();
             }
@@ -104,7 +106,7 @@ export default function Home() {
 Tip: Press Ctrl+Enter when you're done.`}
             minRows={8}
             value={payload}
-            onChange={(e) => setPayload(e.target.value)}
+            onChange={e => setPayload(e.target.value)}
             multiline
           />
           <div className="flex options">
@@ -127,7 +129,7 @@ Tip: Press Ctrl+Enter when you're done.`}
               <Select
                 id="demo-simple-select"
                 value={expiresAfterHours}
-                onChange={(e) => setExpiresAfterHours(e.target.value as number)}
+                onChange={e => setExpiresAfterHours(e.target.value as number)}
                 label="Expires after"
               >
                 <MenuItem value={1}>1 hour</MenuItem>
@@ -159,11 +161,11 @@ Tip: Press Ctrl+Enter when you're done.`}
             id="copy-url-box"
             readOnly
             rows={1}
-            onMouseEnter={(e) => {
+            onMouseEnter={e => {
               // @ts-ignore
               e.target.select();
             }}
-            onMouseLeave={(e) => {
+            onMouseLeave={e => {
               // @ts-ignore
               const sel = window.getSelection();
               if (sel) {

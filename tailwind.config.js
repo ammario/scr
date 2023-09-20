@@ -4,13 +4,13 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", ...defaultTheme.fontFamily.sans],
-      },
+        sans: ["Inter", ...defaultTheme.fontFamily.sans]
+      }
     },
     container: {
-      padding: "20rem",
+      padding: "20rem"
     },
-    plugins: [require("@tailwindcss/forms")],
+    plugins: [require("@tailwindcss/forms")]
   },
-  plugins: [],
+  plugins: []
 };

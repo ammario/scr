@@ -9,3 +9,7 @@ build-go: build-frontend
 
 deploy: build-go
 	./deploy.sh
+
+fmt:
+	npm x prettier -- --write '**/*.{js,jsx,ts,tsx}' \
+		--ignore-path .gitignore

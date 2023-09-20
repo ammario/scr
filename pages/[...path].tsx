@@ -1,7 +1,7 @@
 import { decryptPayload } from "@/util/crypto";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import Home, { apiNote } from ".";
+import { apiNote } from ".";
 var duration = require("dayjs/plugin/duration");
 var relativeTime = require("dayjs/plugin/relativeTime");
 import dayjs from "dayjs";
@@ -31,8 +31,8 @@ export default function ViewNote() {
     try {
       console.log("retrieving", objectID, key);
       fetch("/api/notes" + objectID + (peek ? "?peek=true" : ""), {
-        method: "GET",
-      }).then((resp) => {
+        method: "GET"
+      }).then(resp => {
         if (resp.status == 404) {
           setErr("This note doesn't exist.");
           return;
@@ -52,7 +52,7 @@ export default function ViewNote() {
           }
           setNote({
             ...note,
-            cleartext: t,
+            cleartext: t
           });
         });
       });
