@@ -95,6 +95,7 @@ export default function ViewNote() {
                   </>
                 )}
               </p>
+
               <div className="view-box">{note.cleartext}</div>
               <div
                 className={"flex justify-between py-4"}

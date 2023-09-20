@@ -66,9 +66,10 @@ button:hover {
 }
 
 .frontmatter {
+  @include border;
+
   background: $deepBlue;
   padding: 12px;
-  @include border;
   color: white;
   p {
     a {
@@ -78,12 +79,8 @@ button:hover {
   }
 }
 
-// TODO: find nice yellow
-// .MuiFormControl-root.secret-text {
-//   background-color: lighten($bannerColor, 95%);
-// }
-
 .MuiFormControl-root {
+  @include border;
   background-color: white;
 }
 
@@ -172,9 +169,9 @@ $deepPurple: #a32e80;
   padding: 20px;
   margin-top: 10px;
   font-family: $monoFont;
-  border-width: 2px;
   border-color: black;
   border-style: dashed;
+  border-width: 2px;
   // Preserve formatting
   white-space: pre-wrap;
   word-break: break-word;
