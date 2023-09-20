@@ -1,4 +1,3 @@
-import { DangerousOutlined } from "@mui/icons-material";
 import { ReactNode } from "react";
 
 export function ErrorBox(props: { children: ReactNode }) {

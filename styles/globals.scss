@@ -7,6 +7,9 @@
 $notePadYellow: #fff16b;
 $dreamyTeal: #38a0a3;
 $deepBlue: #2d46a3;
+$nightBlack: #151515;
+$redwoodRed: #a63d40;
+$asparagusGreen: #90a959;
 
 @font-face {
   font-family: "Berkeley Mono";
@@ -23,7 +26,7 @@ select {
 }
 
 button {
-  @apply py-2 px-4 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75;
+  @apply py-2 px-4 bg-blue-500 text-white rounded-lg shadow-md focus:outline-none;
 }
 
 .black-button {
@@ -37,6 +40,10 @@ button {
 button {
   @apply w-full justify-center;
   @include border;
+}
+
+button:hover {
+  filter: brightness(120%);
 }
 
 .create-button {
