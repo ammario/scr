@@ -40,6 +40,8 @@ button {
 button {
   @apply w-full justify-center;
   @include border;
+
+  font-size: 14px;
 }
 
 button:hover {

@@ -31,8 +31,8 @@ export default function ViewNote() {
     try {
       console.log("retrieving", objectID, key);
       fetch("/api/notes" + objectID + (peek ? "?peek=true" : ""), {
-        method: "GET"
-      }).then(resp => {
+        method: "GET",
+      }).then((resp) => {
         if (resp.status == 404) {
           setErr("This note doesn't exist.");
           return;
@@ -52,7 +52,7 @@ export default function ViewNote() {
           }
           setNote({
             ...note,
-            cleartext: t
+            cleartext: t,
           });
         });
       });
@@ -99,7 +99,7 @@ export default function ViewNote() {
               <div className="view-box">{note.cleartext}</div>
               <div
                 className={"flex justify-between py-4"}
-                style={{ gap: "10px" }}
+                style={{ gap: "30px" }}
               >
                 <button
                   className="flex items-center create-button black-button"
