@@ -1,7 +1,8 @@
-import type { AppProps } from "next/app";
+import { AppProps } from "next/app";
 import "../styles/globals.scss";
 import Head from "next/head";
 import Image from "next/image";
+import { css } from "@emotion/react";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -23,13 +24,18 @@ export default function App({ Component, pageProps }: AppProps) {
         />
       </Head>
       <div
-        className="site-container h-screen w-screen flex flex-col md:container sm:px-12 md:px-120 md:mx-auto p-3 lg:px-100"
         style={{
           maxWidth: "800px",
         }}
       >
-        <span className="frontmatter">
-          <div className="flex items-center mb-2">
+        <span
+          css={css`
+            display: "flex";
+            align-items: "center";
+            margin-bottom: "16px";
+          `}
+        >
+          <div className="">
             <a href="/">
               <Image
                 width="48"

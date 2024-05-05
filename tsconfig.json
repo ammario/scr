@@ -9,7 +9,7 @@
     "module": "ESNext",
     "moduleDetection": "force",
     // See https://emotion.sh/docs/typescript.
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "jsxImportSource": "@emotion/react",
     "allowJs": true,
     // Bundler mode
