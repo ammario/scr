@@ -16,26 +16,8 @@ $asparagusGreen: #90a959;
 
 $monoFont: "Berkeley Mono", monospace;
 
-input,
-select {
-  @apply border text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:focus:ring-blue-500 dark:focus:border-blue-500;
-}
-
-button {
-  @apply py-2 px-4 bg-blue-500 text-white rounded-lg shadow-md focus:outline-none;
-}
-
-.black-button {
-  background-color: black;
-}
-
-@mixin border() {
-  border-radius: 4px;
-}
-
 button {
   @apply w-full justify-center;
-  @include border;
 
   font-size: 14px;
 }
@@ -64,8 +46,6 @@ button:hover {
 }
 
 .frontmatter {
-  @include border;
-
   background: $deepBlue;
   padding: 12px;
   color: white;
@@ -78,7 +58,6 @@ button:hover {
 }
 
 .MuiFormControl-root {
-  @include border;
   background-color: white;
 }
 
@@ -112,6 +91,7 @@ p {
 }
 
 body {
+  font-family: "Inter";
   background-color: #f0f0f0;
 }
 
@@ -124,7 +104,6 @@ $deepPurple: #a32e80;
   color: aliceblue;
   padding: 10px;
   resize: none;
-  @include border;
 
   font-weight: bold;
   border-color: black;
@@ -134,7 +113,6 @@ $deepPurple: #a32e80;
 
 .error-box {
   @apply text-center;
-  @include border;
 
   padding: 10px;
   background-color: #b30117;
@@ -151,7 +129,6 @@ $deepPurple: #a32e80;
   padding: 10px;
   background-color: $dreamyTeal;
   color: white;
-  @include border;
   border-color: black;
   border-style: solid;
   border-width: 1px;
@@ -160,7 +137,7 @@ $deepPurple: #a32e80;
 .view-box {
   background-color: #ffffff;
   color: black;
-  padding: 20px;
+  padding: 10px;
   margin-top: 10px;
   font-family: $monoFont;
   border-color: black;
@@ -169,7 +146,6 @@ $deepPurple: #a32e80;
   // Preserve formatting
   white-space: pre-wrap;
   word-break: break-word;
-  @include border;
 }
 
 .faq-answer {

@@ -5,6 +5,9 @@ import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { apiNote } from ".";
+import { css } from "@emotion/react";
+import { Button } from "../components/Button";
+import { colors } from "../util/theme";
 var duration = require("dayjs/plugin/duration");
 var relativeTime = require("dayjs/plugin/relativeTime");
 
@@ -98,11 +101,17 @@ export default function ViewNote() {
 
               <div className="view-box">{note.cleartext}</div>
               <div
-                className={"flex justify-between py-4"}
-                style={{ gap: "30px" }}
+                css={css`
+                  gap: 30px;
+                  display: flex;
+                  justify-content: space-between;
+                  padding-top: 1em;
+                  & button {
+                    min-width: 100px;
+                  }
+                `}
               >
-                <button
-                  className="flex items-center create-button black-button"
+                <Button
                   onClick={() => {
                     navigator.clipboard.writeText(note.cleartext!);
                     setCopySuccess(true);
@@ -110,19 +119,26 @@ export default function ViewNote() {
                 >
                   <CopyAll />
                   Copy
-                </button>
-                <button
-                  className="flex items-center create-button reply-button"
+                </Button>
+                <Button
+                  css={css`
+                    background-color: ${colors.dreamyTeal};
+                  `}
                   onClick={() => {
                     router.push("/");
                   }}
                 >
                   <Reply />
                   Reply
-                </button>
+                </Button>
               </div>
               {copySuccess && (
-                <div className="success-box">
+                <div
+                  className="success-box"
+                  css={css`
+                    margin-top: 1em;
+                  `}
+                >
                   Successfully copied note to clipboard.
                 </div>
               )}
@@ -131,6 +147,7 @@ export default function ViewNote() {
             <>
               This note will be permanently deleted once it's read. Are you
               ready to proceed?
+              <br />
               <button
                 className="flex items-center create-button read-button"
                 onClick={() => {

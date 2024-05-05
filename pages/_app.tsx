@@ -4,6 +4,40 @@ import Head from "next/head";
 import Image from "next/image";
 import { css } from "@emotion/react";
 
+const Frontmatter = () => {
+  return (
+    <div
+      css={css`
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-bottom: "16px";
+        gap: 16px;
+      `}
+    >
+      <a href="/">
+        <Image
+          width="48"
+          height="48"
+          alt="Icon"
+          className="logo"
+          src={"/favicon.ico"}
+        ></Image>
+      </a>
+      <div>
+        <h1>
+          <a href="/" style={{ color: "inherit", textDecoration: "none" }}>
+            s.cr
+          </a>
+        </h1>
+        <p>
+          Send encrypted, self-destructing notes.{" "}
+          <a href="/about">Learn more.</a>
+        </p>
+      </div>
+    </div>
+  );
+};
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
@@ -24,44 +58,13 @@ export default function App({ Component, pageProps }: AppProps) {
         />
       </Head>
       <div
-        style={{
-          maxWidth: "800px",
-        }}
+        css={css`
+          margin: 0 auto;
+          padding: 0 16px;
+          max-width: 800px;
+        `}
       >
-        <span
-          css={css`
-            display: "flex";
-            align-items: "center";
-            margin-bottom: "16px";
-          `}
-        >
-          <div className="">
-            <a href="/">
-              <Image
-                width="48"
-                height="48"
-                alt="Icon"
-                className="logo"
-                src={"/favicon.ico"}
-              ></Image>
-            </a>
-            <div className="ml-3">
-              <h1>
-                <a
-                  href="/"
-                  style={{ color: "inherit", textDecoration: "none" }}
-                >
-                  s.cr
-                </a>
-              </h1>
-              <p>
-                Send encrypted, self-destructing notes.{" "}
-                <a href="/about">Learn more.</a>
-              </p>
-            </div>
-          </div>
-        </span>
-
+        <Frontmatter />
         <hr style={{ marginTop: "12px", marginBottom: "16px" }} />
         <Component {...pageProps} />
       </div>

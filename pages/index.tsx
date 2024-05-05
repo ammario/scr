@@ -1,17 +1,11 @@
+import { CopyAll } from "@mui/icons-material";
+import dayjs from "dayjs";
+import { useState } from "react";
 import { ErrorBox } from "../components/ErrorBox";
 import { encryptPayload, generateUserKey } from "../util/crypto";
-import { CopyAll, LockClock } from "@mui/icons-material";
-import { MenuItem } from "@mui/material";
-import Box from "@mui/material/Box";
-import Checkbox from "@mui/material/Checkbox";
-import FormControl from "@mui/material/FormControl";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import InputLabel from "@mui/material/InputLabel";
-import Select from "@mui/material/Select";
-import TextField from "@mui/material/TextField";
-import dayjs from "dayjs";
 import { css } from "@emotion/react";
-import { useState } from "react";
+import { colors } from "../util/theme";
+import { Button } from "../components/Button";
 
 export interface apiNote {
   contents: string;
@@ -29,7 +23,7 @@ function createdNoteURL(o: createdNote): string {
 }
 
 export default function Home() {
-  const [payload, setPayload] = useState<string>("");
+  const [cleartext, setCleartext] = useState<string>("");
   const [destroyAfterRead, setDestroyAfterRead] = useState<boolean>(true);
   const [expiresAfterHours, setExpiresAfterHours] = useState<number>(24);
 
@@ -38,13 +32,13 @@ export default function Home() {
   const [createErrorMessage, setCreateErrorMessage] = useState<string>();
 
   const handleSubmit = () => {
-    if (payload.length == 0) {
+    if (cleartext.length == 0) {
       setCreateErrorMessage("Empty notes are not allowed.");
       return;
     }
     const key = generateUserKey();
     console.log(key);
-    const ciphertext = encryptPayload(payload, key);
+    const ciphertext = encryptPayload(cleartext, key);
 
     const request: apiNote = {
       contents: ciphertext,
@@ -79,8 +73,7 @@ export default function Home() {
         <ErrorBox>{createErrorMessage}</ErrorBox>
       ) : null}
       {createdNote === undefined ? (
-        <Box
-          component="form"
+        <form
           noValidate
           autoComplete="off"
           onSubmit={(e) => {
@@ -93,66 +86,89 @@ export default function Home() {
             }
           }}
         >
-          <TextField
+          <textarea
             id="secret-input"
             className="secret-text"
-            fullWidth
-            placeholder={`Your private note goes here.
-
-Tip: Press Ctrl+Enter when you're done.`}
-            minRows={8}
-            value={payload}
-            onChange={(e) => setPayload(e.target.value)}
-            multiline
+            placeholder="Your private note goes here. Tip: Press Ctrl+Enter when you're done."
+            value={cleartext}
+            onChange={(e) => setCleartext(e.target.value)}
+            style={{
+              width: "100%",
+              minHeight: "160px",
+              boxSizing: "border-box",
+              padding: "8px",
+              border: "1px solid #ccc",
+              resize: "vertical",
+            }}
           />
           <div
-            className="flex create-options"
             css={css`
               margin-top: 1em;
               font-size: 12px;
+              display: flex;
+              flex-direction: row;
+              gap: 1em;
+              align-items: center;
+
+              & .inputArea {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+              }
             `}
           >
-            <FormControlLabel
-              className="w-1/2"
-              label="Destroy after read"
-              control={
-                <Checkbox
-                  onChange={() => setDestroyAfterRead(!destroyAfterRead)}
-                  defaultChecked={destroyAfterRead}
-                  value={destroyAfterRead}
-                />
-              }
-            />
-
-            <FormControl className="w-1/2">
-              <InputLabel id="demo-simple-select-label">
-                Expires after
-              </InputLabel>
-              <Select
-                id="demo-simple-select"
-                value={expiresAfterHours}
-                onChange={(e) => setExpiresAfterHours(e.target.value as number)}
-                label="Expires after"
-              >
-                <MenuItem value={1}>1 hour</MenuItem>
-                <MenuItem value={8}>8 hours</MenuItem>
-                <MenuItem value={24}>24 hours</MenuItem>
-                <MenuItem value={24 * 3}>3 days</MenuItem>
-                <MenuItem value={24 * 7}>7 days</MenuItem>
-                <MenuItem value={24 * 30}>30 days</MenuItem>
-              </Select>
-            </FormControl>
-          </div>
-          <div className={"flex justify-between py-4"}>
-            <button
-              className="flex items-center create-button black-button"
+            <Button
+              css={css`
+                background-color: ${colors.deepBlue};
+                color: white;
+                min-width: 100px;
+                min-height: 30px;
+              `}
               color="success"
             >
-              <LockClock />
               Create
-            </button>
+            </Button>
+
+            {/* Spacer */}
+            <div
+              css={css`
+                flex-grow: 1;
+              `}
+            ></div>
+            <div className="inputArea">
+              <label htmlFor="expires-after">Expires after</label>
+              <select
+                id="expires-after"
+                value={expiresAfterHours}
+                onChange={(e) => setExpiresAfterHours(Number(e.target.value))}
+              >
+                <option value={1}>1 hour</option>
+                <option value={8}>8 hours</option>
+                <option value={24}>24 hours</option>
+                <option value={24 * 3}>3 days</option>
+                <option value={24 * 7}>7 days</option>
+                <option value={24 * 30}>30 days</option>
+              </select>
+            </div>
+            <div className="inputArea">
+              <label
+                css={css`
+                  margin-left: 3px;
+                `}
+                htmlFor="destroy-after-read"
+              >
+                Destroy after read
+              </label>
+              <input
+                type="checkbox"
+                id="destroy-after-read"
+                onChange={() => setDestroyAfterRead(!destroyAfterRead)}
+                defaultChecked={destroyAfterRead}
+                value={destroyAfterRead.toString()}
+              />
+            </div>
           </div>
-        </Box>
+        </form>
       ) : (
         <>
           <p>
@@ -167,18 +183,33 @@ Tip: Press Ctrl+Enter when you're done.`}
               // @ts-ignore
               e.target.select();
             }}
-            onMouseLeave={(e) => {
-              // @ts-ignore
+            onMouseLeave={() => {
               const sel = window.getSelection();
               if (sel) {
                 sel.empty();
               }
             }}
             value={createdNoteURL(createdNote)}
+            css={css`
+              width: 100%;
+              min-height: 40px;
+              box-sizing: border-box;
+            `}
           ></textarea>
-          <div className={"flex justify-between py-4"}>
+          <div
+            css={css`
+              display: flex;
+              justify-content: space-between;
+              padding-top: 1em;
+            `}
+          >
             <button
-              className="flex items-center create-button black-button"
+              css={css`
+                background-color: ${colors.deepBlue};
+                color: white;
+                display: flex;
+                align-items: center;
+              `}
               onClick={() => {
                 navigator.clipboard.writeText(createdNoteURL(createdNote));
                 setCopySuccess(true);
@@ -189,7 +220,12 @@ Tip: Press Ctrl+Enter when you're done.`}
             </button>
           </div>
           {copySuccess && (
-            <div className="success-box">
+            <div
+              className="success-box"
+              css={css`
+                margin-top: 1em;
+              `}
+            >
               Successfully copied URL to clipboard.
             </div>
           )}
