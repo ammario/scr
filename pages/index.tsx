@@ -1,19 +1,17 @@
-import Head from "next/head";
-import Link from "next/link";
-import Image from "next/image";
+import { ErrorBox } from "../components/ErrorBox";
+import { encryptPayload, generateUserKey } from "../util/crypto";
+import { CopyAll, LockClock } from "@mui/icons-material";
+import { MenuItem } from "@mui/material";
 import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import { CopyAll, Lock, LockClock } from "@mui/icons-material";
 import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
-import { FormHelperText, Input, MenuItem } from "@mui/material";
-import { useState } from "react";
-import { encryptPayload, generateUserKey } from "@/util/crypto";
+import TextField from "@mui/material/TextField";
 import dayjs from "dayjs";
-import { ErrorBox } from "@/components/ErrorBox";
+import { css } from "@emotion/react";
+import { useState } from "react";
 
 export interface apiNote {
   contents: string;
@@ -51,24 +49,22 @@ export default function Home() {
     const request: apiNote = {
       contents: ciphertext,
       destroy_after_read: destroyAfterRead,
-      expires_at: dayjs()
-        .add(expiresAfterHours, "hours")
-        .toISOString()
+      expires_at: dayjs().add(expiresAfterHours, "hours").toISOString(),
     };
 
     fetch("/api/notes", {
       method: "POST",
-      body: JSON.stringify(request)
+      body: JSON.stringify(request),
     })
-      .catch(r => {
+      .catch((r) => {
         alert(r);
       })
-      .then(resp => {
+      .then((resp) => {
         if (resp) {
-          resp.text().then(t => {
+          resp.text().then((t) => {
             setCreatedObjectID({
               id: t,
-              key: key
+              key: key,
             });
             setCreateErrorMessage(undefined);
             console.log("created", t);
@@ -87,11 +83,11 @@ export default function Home() {
           component="form"
           noValidate
           autoComplete="off"
-          onSubmit={e => {
+          onSubmit={(e) => {
             e.preventDefault();
             handleSubmit();
           }}
-          onKeyDown={e => {
+          onKeyDown={(e) => {
             if (e.ctrlKey && e.keyCode === 13) {
               handleSubmit();
             }
@@ -106,10 +102,16 @@ export default function Home() {
 Tip: Press Ctrl+Enter when you're done.`}
             minRows={8}
             value={payload}
-            onChange={e => setPayload(e.target.value)}
+            onChange={(e) => setPayload(e.target.value)}
             multiline
           />
-          <div className="flex options">
+          <div
+            className="flex create-options"
+            css={css`
+              margin-top: 1em;
+              font-size: 12px;
+            `}
+          >
             <FormControlLabel
               className="w-1/2"
               label="Destroy after read"
@@ -129,7 +131,7 @@ Tip: Press Ctrl+Enter when you're done.`}
               <Select
                 id="demo-simple-select"
                 value={expiresAfterHours}
-                onChange={e => setExpiresAfterHours(e.target.value as number)}
+                onChange={(e) => setExpiresAfterHours(e.target.value as number)}
                 label="Expires after"
               >
                 <MenuItem value={1}>1 hour</MenuItem>
@@ -161,11 +163,11 @@ Tip: Press Ctrl+Enter when you're done.`}
             id="copy-url-box"
             readOnly
             rows={1}
-            onMouseEnter={e => {
+            onMouseEnter={(e) => {
               // @ts-ignore
               e.target.select();
             }}
-            onMouseLeave={e => {
+            onMouseLeave={(e) => {
               // @ts-ignore
               const sel = window.getSelection();
               if (sel) {

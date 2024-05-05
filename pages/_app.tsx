@@ -1,5 +1,5 @@
+import type { AppProps } from "next/app";
 import "../styles/globals.scss";
-import { AppProps } from "next/app";
 import Head from "next/head";
 import Image from "next/image";
 
@@ -25,7 +25,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <div
         className="site-container h-screen w-screen flex flex-col md:container sm:px-12 md:px-120 md:mx-auto p-3 lg:px-100"
         style={{
-          maxWidth: "800px"
+          maxWidth: "800px",
         }}
       >
         <span className="frontmatter">
