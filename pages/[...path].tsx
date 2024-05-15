@@ -103,6 +103,7 @@ export default function ViewNote() {
                 css={css`
                   gap: 15px;
                   display: flex;
+                  flex-wrap: wrap;
                   padding-top: 1em;
                   & button {
                     min-width: 100px;

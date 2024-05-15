@@ -199,6 +199,7 @@ export default function Home() {
           <div
             css={css`
               display: flex;
+              flex-wrap: wrap;
               padding-top: 1em;
               gap: 15px;
             `}
