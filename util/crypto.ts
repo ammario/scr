@@ -1,4 +1,4 @@
-import { pbkdf2, pbkdf2Sync } from "crypto";
+import { pbkdf2Sync } from "crypto";
 import { AES } from "crypto-ts";
 
 export const generateUserKey = (): string => {
