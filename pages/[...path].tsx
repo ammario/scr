@@ -1,13 +1,12 @@
-import { ErrorBox } from "../components/ErrorBox";
-import { decryptPayload } from "../util/crypto";
+import { css } from "@emotion/react";
 import { CopyAll, Reply } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { apiNote } from ".";
-import { css } from "@emotion/react";
 import { Button } from "../components/Button";
-import { colors } from "../util/theme";
+import { ErrorBox } from "../components/ErrorBox";
+import { decryptPayload } from "../util/crypto";
 var duration = require("dayjs/plugin/duration");
 var relativeTime = require("dayjs/plugin/relativeTime");
 
@@ -102,9 +101,8 @@ export default function ViewNote() {
               <div className="view-box">{note.cleartext}</div>
               <div
                 css={css`
-                  gap: 30px;
+                  gap: 15px;
                   display: flex;
-                  justify-content: space-between;
                   padding-top: 1em;
                   & button {
                     min-width: 100px;
@@ -121,9 +119,7 @@ export default function ViewNote() {
                   Copy
                 </Button>
                 <Button
-                  css={css`
-                    background-color: ${colors.dreamyTeal};
-                  `}
+                  css={css``}
                   onClick={() => {
                     router.push("/");
                   }}
@@ -131,17 +127,12 @@ export default function ViewNote() {
                   <Reply />
                   Reply
                 </Button>
+                {copySuccess && (
+                  <div className="success-box">
+                    Successfully copied note to clipboard.
+                  </div>
+                )}
               </div>
-              {copySuccess && (
-                <div
-                  className="success-box"
-                  css={css`
-                    margin-top: 1em;
-                  `}
-                >
-                  Successfully copied note to clipboard.
-                </div>
-              )}
             </>
           ) : (
             <>
@@ -149,7 +140,7 @@ export default function ViewNote() {
               ready to proceed?
               <br />
               <button
-                className="flex items-center create-button read-button"
+                className="flex items-center read-button"
                 onClick={() => {
                   retrieveNote(false);
                 }}

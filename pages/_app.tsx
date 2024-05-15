@@ -65,7 +65,13 @@ export default function App({ Component, pageProps }: AppProps) {
         `}
       >
         <Frontmatter />
-        <hr style={{ marginTop: "12px", marginBottom: "16px" }} />
+        <hr
+          style={{
+            height: 0,
+            color: "inherit",
+            border: "1px solid #ddd",
+          }}
+        />
         <Component {...pageProps} />
       </div>
     </>

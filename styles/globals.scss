@@ -2,10 +2,10 @@
 
 $notePadYellow: #fff16b;
 $dreamyTeal: #38a0a3;
-$deepBlue: #2d46a3;
+$primaryBlue: #37498b;
 $nightBlack: #151515;
 $redwoodRed: #a63d40;
-$asparagusGreen: #90a959;
+$primaryGreen: #198729;
 
 @font-face {
   font-family: "Berkeley Mono";
@@ -20,14 +20,15 @@ button {
   @apply w-full justify-center;
 
   font-size: 14px;
+  justify-content: center;
+  background-color: $primaryBlue;
+  color: white;
+  min-width: 100px;
+  min-height: 30px;
 }
 
 button:hover {
   filter: brightness(120%);
-}
-
-.create-button {
-  background-color: $deepBlue;
 }
 
 .reply-button {
@@ -46,7 +47,7 @@ button:hover {
 }
 
 .frontmatter {
-  background: $deepBlue;
+  background: primaryBlue;
   padding: 12px;
   color: white;
   p {
@@ -76,6 +77,9 @@ p {
   opacity: 0.64;
   margin-top: 0px;
   font-size: 14px;
+
+  margin-block-end: 4px;
+  margin-block-start: 4px;
 }
 
 .tagline {
@@ -124,10 +128,14 @@ $deepPurple: #a32e80;
   margin-bottom: 10px;
 }
 
+select {
+  border-radius: 0px;
+}
+
 .success-box {
   @apply text-center;
-  padding: 10px;
-  background-color: $dreamyTeal;
+  padding: 5px;
+  background-color: $primaryGreen;
   color: white;
   border-color: black;
   border-style: solid;
@@ -138,7 +146,6 @@ $deepPurple: #a32e80;
   background-color: #ffffff;
   color: black;
   padding: 10px;
-  margin-top: 10px;
   font-family: $monoFont;
   border-color: black;
   border-style: dashed;
@@ -150,4 +157,8 @@ $deepPurple: #a32e80;
 
 .faq-answer {
   padding-bottom: 16px;
+}
+
+svg.MuiSvgIcon-root {
+  width: 20px;
 }

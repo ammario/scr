@@ -119,7 +119,7 @@ export default function Home() {
           >
             <Button
               css={css`
-                background-color: ${colors.deepBlue};
+                background-color: ${colors.primaryBlue};
                 color: white;
                 min-width: 100px;
                 min-height: 30px;
@@ -199,13 +199,13 @@ export default function Home() {
           <div
             css={css`
               display: flex;
-              justify-content: space-between;
               padding-top: 1em;
+              gap: 15px;
             `}
           >
             <button
               css={css`
-                background-color: ${colors.deepBlue};
+                background-color: ${colors.primaryBlue};
                 color: white;
                 display: flex;
                 align-items: center;
@@ -218,17 +218,13 @@ export default function Home() {
               <CopyAll />
               Copy URL
             </button>
+
+            {copySuccess && (
+              <div className="success-box">
+                Successfully copied URL to clipboard.
+              </div>
+            )}
           </div>
-          {copySuccess && (
-            <div
-              className="success-box"
-              css={css`
-                margin-top: 1em;
-              `}
-            >
-              Successfully copied URL to clipboard.
-            </div>
-          )}
         </>
       )}
     </>
