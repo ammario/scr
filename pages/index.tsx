@@ -68,7 +68,13 @@ export default function Home() {
   };
 
   return (
-    <>
+    <div
+      css={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.25em",
+      }}
+    >
       {createErrorMessage !== undefined ? (
         <ErrorBox>{createErrorMessage}</ErrorBox>
       ) : null}
@@ -103,7 +109,6 @@ export default function Home() {
           />
           <div
             css={css`
-              margin-top: 1em;
               font-size: 12px;
               display: flex;
               flex-direction: row;
@@ -200,7 +205,6 @@ export default function Home() {
             css={css`
               display: flex;
               flex-wrap: wrap;
-              padding-top: 1em;
               gap: 15px;
             `}
           >
@@ -228,6 +232,6 @@ export default function Home() {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 }

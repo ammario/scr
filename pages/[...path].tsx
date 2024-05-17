@@ -104,7 +104,7 @@ export default function ViewNote() {
                   gap: 15px;
                   display: flex;
                   flex-wrap: wrap;
-                  padding-top: 1em;
+                  padding-top: 0.25em;
                   & button {
                     min-width: 100px;
                   }
