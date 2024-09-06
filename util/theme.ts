@@ -9,8 +9,8 @@ export const colors = {
   accentDark: "#264f78",
 
   // Semantic colors
-  success: "#4caf50", // A more muted green
-  warning: "#d7ba7d",
+  success: "#17932e", // A more muted green
+  warning: "#ffb12c",
   error: "#f44747",
   comment: "#6a9955",
 
@@ -24,5 +24,6 @@ export const colors = {
 
 export const colorMixins = {
   textareaBackground: `color-mix(in srgb, ${colors.background} 90%, ${colors.backgroundTransparent})`,
+  selectBackground: `color-mix(in srgb, ${colors.background} 90%, ${colors.backgroundTransparent})`,
   hrBackground: `color-mix(in srgb, ${colors.background} 70%, ${colors.backgroundTransparent})`,
 };

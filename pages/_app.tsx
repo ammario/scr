@@ -94,21 +94,9 @@ const globalStyles = css`
     background-color: var(--success);
   }
 
-  .read-button {
-    background-color: var(--warning);
-    color: var(--background);
-    margin-top: 8px;
-    margin-bottom: 8px;
-  }
-
-  .read-button:hover {
-    background-color: var(--accent-light);
-    color: var(--background);
-  }
-
   /* Form Elements */
   select {
-    background-color: var(--accent-dark);
+    background-color: ${colorMixins.selectBackground};
     color: var(--foreground);
     border: 1px solid var(--accent);
   }
@@ -155,16 +143,6 @@ const globalStyles = css`
     padding: 5px;
     background-color: var(--success);
     border: 1px solid var(--black);
-  }
-
-  .view-box {
-    background-color: var(--accent-dark);
-    color: var(--foreground);
-    padding: 10px;
-    font-family: "Berkeley Mono", monospace;
-    border: 2px dashed var(--accent);
-    white-space: pre-wrap;
-    word-break: break-word;
   }
 
   .faq-answer {
@@ -250,8 +228,9 @@ export default function App({ Component, pageProps }: AppProps) {
       <div
         css={css`
           margin: 0 auto;
-          padding: 0 16px;
           max-width: 800px;
+          width: 100%;
+          box-sizing: border-box;
         `}
       >
         <Frontmatter />
@@ -262,7 +241,14 @@ export default function App({ Component, pageProps }: AppProps) {
             border: 1px solid ${colorMixins.hrBackground};
           `}
         />
-        <Component {...pageProps} />
+        <div
+          css={css`
+            width: 100%;
+            box-sizing: border-box;
+          `}
+        >
+          <Component {...pageProps} />
+        </div>
       </div>
     </>
   );

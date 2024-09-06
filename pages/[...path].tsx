@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { CopyAll, Reply } from "@mui/icons-material";
+import { CopyAll, DeleteForever, Reply, Visibility } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -7,6 +7,7 @@ import { apiNote } from ".";
 import { Button } from "../components/Button";
 import { ErrorBox } from "../components/ErrorBox";
 import { decryptPayload } from "../util/crypto";
+import { colorMixins } from "../util/theme";
 var duration = require("dayjs/plugin/duration");
 var relativeTime = require("dayjs/plugin/relativeTime");
 
@@ -73,10 +74,25 @@ export default function ViewNote() {
   }, [objectID]);
 
   return (
-    <>
+    <div
+      css={css`
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 10px;
+        max-width: 800px;
+        width: 100%; // Add this line
+        box-sizing: border-box; // Add this line
+      `}
+    >
       {err && <ErrorBox>{err}</ErrorBox>}
       {note && err === undefined && (
-        <>
+        <div
+          css={css`
+            width: 100%; // Add this line
+          `}
+        >
           {note.cleartext !== undefined ? (
             <>
               <p>
@@ -98,7 +114,24 @@ export default function ViewNote() {
                 )}
               </p>
 
-              <div className="view-box">{note.cleartext}</div>
+              <div
+                className="view-box"
+                css={css`
+                  background-color: ${colorMixins.textareaBackground};
+                  color: var(--foreground);
+                  padding: 10px;
+                  font-family: "Berkeley Mono", monospace;
+                  border: 2px dashed var(--accent);
+                  white-space: pre-wrap;
+                  word-break: break-word;
+                  box-sizing: border-box;
+                  width: 100%;
+                  max-width: 100%; // Add this line
+                  overflow-x: auto; // Add this line
+                `}
+              >
+                {note.cleartext}
+              </div>
               <div
                 css={css`
                   gap: 15px;
@@ -136,22 +169,56 @@ export default function ViewNote() {
               </div>
             </>
           ) : (
-            <>
-              This note will be permanently deleted once it's read. Are you
-              ready to proceed?
-              <br />
+            <div
+              css={css`
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                justify-content: center;
+              `}
+            >
+              <p>
+                This note will be permanently deleted once it's read. Are you
+                ready to proceed?
+              </p>
               <button
-                className="flex items-center read-button"
+                css={css`
+                  border: none;
+                  padding: 5px 5px;
+                  border-radius: 5px;
+                  width: 200px;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+
+                  background-color: var(--warning);
+                  color: var(--background);
+                  margin-top: 8px;
+                  margin-bottom: 4px;
+
+                  :hover {
+                    background-color: var(--accent-light);
+                    color: var(--background);
+                  }
+
+                  svg {
+                    color: inherit;
+                    margin-right: 2px;
+                  }
+                `}
+                className="read-button"
                 onClick={() => {
                   retrieveNote(false);
                 }}
               >
-                Read & Destroy note
+                <Visibility />
+                Read Note
               </button>
-            </>
+            </div>
           )}
-        </>
+        </div>
       )}
-    </>
+    </div>
   );
 }
