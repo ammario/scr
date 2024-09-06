@@ -1,5 +1,11 @@
 import { expect, test, describe } from "bun:test";
-import { encryptPayload, decryptPayload, generateUserKey } from "./crypto";
+import {
+  encryptStringPayload,
+  decryptStringPayload,
+  generateUserKey,
+  encryptBufferPayload,
+  decryptBufferPayload,
+} from "./crypto";
 
 describe("Crypto Utils", () => {
   test("generateUserKey should return a string of length 10", () => {
@@ -10,9 +16,11 @@ describe("Crypto Utils", () => {
   test("encryptPayload and decryptPayload should work together", () => {
     const originalText = "Hello, World!";
     const key = generateUserKey();
-    const encrypted = encryptPayload(originalText, key);
+    const encrypted = encryptStringPayload(originalText, key);
     console.log(encrypted);
-    const decrypted = decryptPayload(encrypted, key);
+    const decrypted = decryptStringPayload(encrypted, key);
     expect(decrypted).toBe(originalText);
   });
+
+  // TODO need to test buffer payload encryption and decryption
 });

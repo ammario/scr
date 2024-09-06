@@ -2,6 +2,8 @@ import { pbkdf2Sync } from "crypto";
 import { AES } from "crypto-ts";
 import { createHash } from "crypto";
 import { enc } from "crypto-ts";
+import CryptoJS from "crypto-js";
+import { WordArray } from "crypto-ts/src/lib/WordArray";
 
 export const generateUserKey = (): string => {
   let result = "";
@@ -22,14 +24,55 @@ const expandKey = (key: string): string => {
   return pbkdf2Sync(key, "s.cr!", 128, 32, "sha512").toString();
 };
 
-export const encryptPayload = (payload: string, key: string): string => {
-  const encrypted = AES.encrypt(payload, expandKey(key));
-  return encrypted.toString();
+export const encryptStringPayload = (payload: string, key: string): string => {
+  return CryptoJS.AES.encrypt(payload, expandKey(key)).toString();
 };
 
-export const decryptPayload = (payload: string, key: string): string => {
-  const decrypted = AES.decrypt(payload, expandKey(key));
-  return decrypted.toString(enc.Utf8);
+export const encryptBufferPayload = (
+  payload: ArrayBufferLike,
+  key: string
+): ArrayBuffer => {
+  const wordArray = CryptoJS.lib.WordArray.create(new Uint8Array(payload));
+  const encrypted = CryptoJS.AES.encrypt(wordArray, expandKey(key));
+  // Convert the ciphertext WordArray directly to ArrayBuffer
+  const encryptedWords = encrypted.ciphertext.words;
+  const encryptedBuffer = new ArrayBuffer(encrypted.ciphertext.sigBytes);
+  const encryptedView = new DataView(encryptedBuffer);
+  for (let i = 0; i < encryptedWords.length; i++) {
+    encryptedView.setUint32(i * 4, encryptedWords[i], false);
+  }
+  return encryptedBuffer;
+};
+
+export const decryptStringPayload = (payload: string, key: string): string => {
+  const decrypted = CryptoJS.AES.decrypt(payload, expandKey(key));
+  return decrypted.toString(CryptoJS.enc.Utf8);
+};
+
+export const decryptBufferPayload = (
+  payload: ArrayBuffer,
+  key: string
+): ArrayBuffer => {
+  // Convert ArrayBuffer to WordArray
+  const payloadWords = CryptoJS.lib.WordArray.create(new Uint8Array(payload));
+
+  // Create a CipherParams object
+  const cipherParams = CryptoJS.lib.CipherParams.create({
+    ciphertext: payloadWords,
+  });
+
+  // Decrypt the payload
+  const decrypted = CryptoJS.AES.decrypt(cipherParams, expandKey(key));
+
+  // Convert the decrypted WordArray directly to ArrayBuffer
+  const decryptedWords = decrypted.words;
+  const decryptedBuffer = new ArrayBuffer(decrypted.sigBytes);
+  const decryptedView = new DataView(decryptedBuffer);
+  for (let i = 0; i < decrypted.sigBytes; i += 4) {
+    decryptedView.setUint32(i, decryptedWords[i / 4], false);
+  }
+
+  return decryptedBuffer;
 };
 
 // Add this new function

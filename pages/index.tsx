@@ -1,19 +1,23 @@
 import { css } from "@emotion/react";
-import { CopyAll } from "@mui/icons-material";
+import { AttachFile, CopyAll } from "@mui/icons-material";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { filesize } from "filesize";
+import { useMemo, useRef, useState } from "react";
 import { Button } from "../components/Button";
 import { ErrorBox } from "../components/ErrorBox";
 import { FlexColumn } from "../components/Flex";
+import ProgressBar from "../components/ProgressBar";
 import {
-  calculateChecksum,
-  encryptPayload,
+  encryptBufferPayload,
+  encryptStringPayload,
   generateUserKey,
 } from "../util/crypto";
-import { colors } from "../util/theme";
+import { colorMixins, colors } from "../util/theme";
 
 export interface apiNote {
   contents: string;
+  file_name: string;
+  file_contents: string;
   destroy_after_read: boolean;
   expires_at: string;
 }
@@ -36,53 +40,79 @@ export default function Home() {
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
   const [createErrorMessage, setCreateErrorMessage] = useState<string>();
 
+  const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | undefined>();
+  const [fileSize, setFileSize] = useState<string | undefined>();
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setFile(event.target.files[0]);
+      setFileName(event.target.files[0].name);
+      setFileSize(filesize(event.target.files[0].size)); // This will return a human-readable string
+    }
+  };
+
+  const key = useMemo(() => generateUserKey(), []);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+
   const handleSubmit = async () => {
-    if (cleartext.length == 0) {
+    if (cleartext.length == 0 && file == null) {
       setCreateErrorMessage("Empty notes are not allowed.");
       return;
     }
-    const key = generateUserKey();
     console.log(key);
-    const ciphertext = encryptPayload(cleartext, key);
+    const ciphertext = encryptStringPayload(cleartext, key);
 
     const formData = new FormData();
-    const blob = new Blob([ciphertext], {
-      type: "application/octet-stream",
-    });
+    formData.append("contents", ciphertext);
     formData.append("version", "1");
     formData.append("destroy_after_read", destroyAfterRead.toString());
     formData.append(
       "expires_at",
       dayjs().add(expiresAfterHours, "hours").toISOString()
     );
-    formData.append("contents", blob, "contents.bin"); // Add a filename
 
-    const checksum = await calculateChecksum(blob);
-    console.log("Blob checksum:", checksum);
-    console.log("Blob size:", blob.size); // Log the size of the blob
+    if (file) {
+      const buf = await file.arrayBuffer();
+      const fileEncrypted = encryptBufferPayload(buf, key);
+      formData.append("file_contents", new Blob([fileEncrypted]), file.name);
+      formData.append("file_name", file.name);
+    }
 
-    fetch("/api/notes", {
-      method: "POST",
-      body: formData,
-    })
-      .then((resp) => {
-        if (!resp.ok) {
-          throw new Error(`HTTP error! status: ${resp.status}`);
-        }
-        return resp.text();
-      })
-      .then((t) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/api/notes", true);
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentComplete = event.loaded / event.total;
+        setUploadProgress(percentComplete);
+      }
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 201 || xhr.status === 200) {
+        const id = xhr.responseText;
         setCreatedObjectID({
-          id: t,
+          id: id,
           key: key,
         });
         setCreateErrorMessage(undefined);
-        console.log("created", t);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        setCreateErrorMessage(error.message);
-      });
+        console.log("created", id);
+      } else {
+        setCreateErrorMessage(
+          `HTTP error! status: ${xhr.status}\n${xhr.responseText}`
+        );
+      }
+      setUploadProgress(0); // Reset progress
+    };
+
+    xhr.onerror = () => {
+      setCreateErrorMessage("Upload failed");
+      setUploadProgress(0); // Reset progress
+    };
+
+    xhr.send(formData);
   };
 
   return (
@@ -170,6 +200,60 @@ export default function Home() {
                 `}
               ></div>
               <div className="inputArea">
+                <label htmlFor="file-input">Attach file</label>
+                <div
+                  css={css`
+                    position: relative;
+                    overflow: hidden;
+                    display: inline-block;
+                  `}
+                >
+                  <button
+                    type="button"
+                    css={css`
+                      font-size: 12px;
+                      padding: 2px 4px;
+                      background-color: ${colorMixins.selectBackground};
+                      color: ${colors.foreground};
+                      border: 1px solid ${colors.accent};
+                      border-radius: 4px;
+                      margin-bottom: 0px;
+                      margin-top: 0px;
+                      min-height: 23px;
+                      min-width: 80px;
+                      cursor: pointer;
+                      display: flex;
+                      align-items: center;
+                    `}
+                  >
+                    <AttachFile
+                      fontSize="small"
+                      css={css`
+                        font-size: 12px !important;
+                      `}
+                    />
+                    <span>
+                      {fileName ? fileName : "Choose"}
+                      {fileSize ? ` (${fileSize})` : ""}
+                    </span>
+                  </button>
+                  <input
+                    type="file"
+                    id="file-input"
+                    onChange={handleFileChange}
+                    ref={fileInputRef}
+                    css={css`
+                      font-size: 100px;
+                      position: absolute;
+                      left: 0;
+                      top: 0;
+                      opacity: 0;
+                      cursor: pointer;
+                    `}
+                  />
+                </div>
+              </div>
+              <div className="inputArea">
                 <label htmlFor="expires-after">Expires after</label>
                 <select
                   id="expires-after"
@@ -202,6 +286,9 @@ export default function Home() {
                 />
               </div>
             </div>
+            {uploadProgress > 0 && uploadProgress < 100 && (
+              <ProgressBar progress={uploadProgress} />
+            )}
           </FlexColumn>
         </form>
       ) : (

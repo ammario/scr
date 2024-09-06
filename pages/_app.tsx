@@ -161,7 +161,7 @@ const globalStyles = css`
 
   svg.MuiSvgIcon-root {
     width: 20px;
-    color: var(--accent-light);
+    color: white;
   }
 `;
 

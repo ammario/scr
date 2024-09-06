@@ -3,16 +3,14 @@ package server
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
 	"embed"
-	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -73,7 +71,9 @@ type note struct {
 	ExpiresAt        time.Time `schema:"expires_at" json:"expires_at"`
 	DestroyAfterRead bool      `schema:"destroy_after_read" json:"destroy_after_read"`
 	// Version is used to track changes to the note schema.
-	Version int `schema:"version" json:"version"`
+	Version      int    `schema:"version" json:"version"`
+	FileName     string `schema:"file_name" json:"file_name,omitempty"`
+	FileContents string `schema:"file_contents" json:"file_contents,omitempty"`
 }
 
 var decoder = schema.NewDecoder()
@@ -134,17 +134,20 @@ func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
 
 	reader, err := s.Storage.Bucket(bucketName).Object(objectID).NewReader(r.Context())
 	if err != nil {
-		if err == storage.ErrObjectNotExist {
-			writePlainText(w, http.StatusNotFound, "Object doesn't exist")
-			return
-		}
-		writePlainText(w, http.StatusInternalServerError, "Something ain't right")
+		writePlainText(w, http.StatusInternalServerError, "Failed to read object")
 		return
 	}
 	defer reader.Close()
 
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, reader)
+	if err != nil {
+		writePlainText(w, http.StatusInternalServerError, "Failed to read object")
+		return
+	}
+
 	var n note
-	err = json.NewDecoder(reader).Decode(&n)
+	err = json.Unmarshal(buf.Bytes(), &n)
 	if err != nil {
 		writePlainText(w, http.StatusInternalServerError, "note corrupt: %v", err)
 		return
@@ -155,6 +158,7 @@ func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
 	// to see the note?"
 	if r.URL.Query().Has("peek") && n.DestroyAfterRead {
 		n.Contents = ""
+		n.FileContents = ""
 		writeJSON(w, http.StatusOK, n)
 		return
 	}
@@ -182,21 +186,15 @@ func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, n)
-}
+	// Super janky but we're going to load everything into memory so the
+	// client can produce a progress bar.
 
-type limitErrReader struct {
-	io.Reader
-	limit int64
-}
-
-func (l *limitErrReader) Read(p []byte) (n int, err error) {
-	n, err = l.Reader.Read(p)
-	l.limit -= int64(n)
-	if l.limit < 0 {
-		return 0, errors.New("limit exceeded")
-	}
-	return
+	// Set Content-Length header so that the client can produce a progress bar
+	w.Header().Set("Content-Length", strconv.Itoa(len(buf.Bytes())))
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.(http.Flusher).Flush()
+	buf.WriteTo(w)
 }
 
 func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
@@ -212,8 +210,9 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 		writePlainText(w, http.StatusBadRequest, "decode form data: %v", err)
 		return
 	}
-	if len(parsedReq.Contents) > maxNoteSize {
-		writePlainText(w, http.StatusBadRequest, "Contents exceed max note size of %v bytes", maxNoteSize)
+
+	if len(parsedReq.Contents) > maxNoteSize || len(parsedReq.FileContents) > maxNoteSize {
+		writePlainText(w, http.StatusBadRequest, "Contents or file exceed max note size of %v bytes", maxNoteSize)
 		return
 	}
 	if parsedReq.ExpiresAt.After(time.Now().AddDate(0, 0, 30)) {
@@ -221,23 +220,17 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the contents from the form data
-	file, _, err := r.FormFile("contents")
-	if err != nil {
-		writePlainText(w, http.StatusBadRequest, "get form file: %v", err)
-		return
+	file, _, err := r.FormFile("file_contents")
+	if err == nil {
+		defer file.Close()
+		fileContents, err := io.ReadAll(file)
+		if err != nil {
+			writePlainText(w, http.StatusInternalServerError, "Failed to read file contents")
+			return
+		}
+		parsedReq.FileContents = string(fileContents)
+		parsedReq.FileName = r.FormValue("file_name")
 	}
-	defer file.Close()
-
-	limitedReader := &limitErrReader{Reader: file, limit: maxNoteSize}
-	var buf bytes.Buffer
-	_, err = io.Copy(&buf, limitedReader)
-	if err != nil {
-		writePlainText(w, http.StatusBadRequest, "Contents exceed max note size of %v bytes", maxNoteSize)
-		return
-	}
-	// buffer is already a base64
-	parsedReq.Contents = buf.String()
 
 	for attempts := 0; attempts < 10; attempts++ {
 		objectName, err := s.findObjectID(r.Context())
@@ -258,7 +251,12 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 		// with the work.
 
 		hw := objectHandle.NewWriter(r.Context())
-		json.NewEncoder(hw).Encode(parsedReq)
+		err = json.NewEncoder(hw).Encode(parsedReq)
+		if err != nil {
+			writePlainText(w, http.StatusInternalServerError, "failed to encode note")
+			s.Log.Error(r.Context(), "encode note", slog.Error(err))
+			return
+		}
 		err = hw.Close()
 		if err != nil {
 			if e, ok := err.(*googleapi.Error); ok {
@@ -272,15 +270,20 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 			s.Log.Error(r.Context(), "write to storage", slog.Error(err))
 			return
 		}
-		var (
-			ogCsm  = sha256.Sum256(buf.Bytes())
-			b64csm = sha256.Sum256([]byte(parsedReq.Contents))
-		)
-		s.Log.Info(r.Context(), "created note", slog.F("id", objectName),
+
+		// Log creation with file info if present
+		logFields := []slog.Field{
+			slog.F("id", objectName),
 			slog.F("size", len(parsedReq.Contents)),
-			slog.F("og_checksum", hex.EncodeToString(ogCsm[:])),
-			slog.F("b64_checksum", hex.EncodeToString(b64csm[:])),
-		)
+		}
+		if parsedReq.FileName != "" {
+			logFields = append(logFields,
+				slog.F("file_name", parsedReq.FileName),
+				slog.F("file_size", len(parsedReq.FileContents)),
+			)
+		}
+		s.Log.Info(r.Context(), "created note", logFields...)
+
 		writePlainText(w, http.StatusCreated, objectName)
 		return
 	}
