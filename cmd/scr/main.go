@@ -47,7 +47,8 @@ func main() {
 	cmd.Flags().StringVarP(&dataset, "dataset", "", "coder", "Customize the dataset to store BigQuery data.")
 	defaultPort, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
-		defaultPort = 3000
+		// 3000 is used by the web app.
+		defaultPort = 3001
 	}
 	cmd.Flags().Uint16VarP(&port, "port", "p", uint16(defaultPort), "Customize the port for the server to listen on.")
 	err = cmd.Execute()

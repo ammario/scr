@@ -132,26 +132,6 @@ const globalStyles = css`
     opacity: 1;
   }
 
-  #copy-url-box {
-    text-align: center;
-    background-color: var(--accent-dark);
-    color: var(--foreground);
-    padding: 10px;
-    resize: none;
-    font-weight: bold;
-    border: 2px dotted var(--accent);
-  }
-
-  .error-box {
-    text-align: center;
-    padding: 10px;
-    background-color: var(--error);
-    font-weight: bold;
-    color: var(--foreground);
-    border: 1px solid var(--accent);
-    margin-bottom: 10px;
-  }
-
   .success-box {
     border-radius: ${borderRadius};
     text-align: center;

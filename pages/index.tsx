@@ -2,11 +2,16 @@ import { CopyAll } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { ErrorBox } from "../components/ErrorBox";
-import { encryptPayload, generateUserKey } from "../util/crypto";
+import {
+  calculateChecksum,
+  encryptPayload,
+  generateUserKey,
+} from "../util/crypto";
 import { css } from "@emotion/react";
 import { colors } from "../util/theme";
 import { Button } from "../components/Button";
 import { FlexColumn } from "../components/Flex";
+import { Base64 } from "js-base64";
 
 export interface apiNote {
   contents: string;
@@ -32,7 +37,7 @@ export default function Home() {
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
   const [createErrorMessage, setCreateErrorMessage] = useState<string>();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (cleartext.length == 0) {
       setCreateErrorMessage("Empty notes are not allowed.");
       return;
@@ -41,30 +46,42 @@ export default function Home() {
     console.log(key);
     const ciphertext = encryptPayload(cleartext, key);
 
-    const request: apiNote = {
-      contents: ciphertext,
-      destroy_after_read: destroyAfterRead,
-      expires_at: dayjs().add(expiresAfterHours, "hours").toISOString(),
-    };
+    const formData = new FormData();
+    const blob = new Blob([Base64.atob(ciphertext)], {
+      type: "application/octet-stream",
+    });
+    formData.append("destroy_after_read", destroyAfterRead.toString());
+    formData.append(
+      "expires_at",
+      dayjs().add(expiresAfterHours, "hours").toISOString()
+    );
+    formData.append("contents", blob, "contents.bin"); // Add a filename
+
+    const checksum = await calculateChecksum(blob);
+    console.log("Blob checksum:", checksum);
+    console.log("Blob size:", blob.size); // Log the size of the blob
 
     fetch("/api/notes", {
       method: "POST",
-      body: JSON.stringify(request),
+      body: formData,
     })
-      .catch((r) => {
-        alert(r);
-      })
       .then((resp) => {
-        if (resp) {
-          resp.text().then((t) => {
-            setCreatedObjectID({
-              id: t,
-              key: key,
-            });
-            setCreateErrorMessage(undefined);
-            console.log("created", t);
-          });
+        if (!resp.ok) {
+          throw new Error(`HTTP error! status: ${resp.status}`);
         }
+        return resp.text();
+      })
+      .then((t) => {
+        setCreatedObjectID({
+          id: t,
+          key: key,
+        });
+        setCreateErrorMessage(undefined);
+        console.log("created", t);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        setCreateErrorMessage(error.message);
       });
   };
 
@@ -88,7 +105,7 @@ export default function Home() {
             handleSubmit();
           }}
           onKeyDown={(e) => {
-            if (e.ctrlKey && e.keyCode === 13) {
+            if (e.ctrlKey && e.key === "Enter") {
               handleSubmit();
             }
           }}
@@ -194,9 +211,7 @@ export default function Home() {
             intended recipient.
           </p>
           <textarea
-            id="copy-url-box"
             readOnly
-            rows={1}
             onMouseEnter={(e) => {
               // @ts-ignore
               e.target.select();
@@ -207,11 +222,23 @@ export default function Home() {
                 sel.empty();
               }
             }}
+            rows={1}
             value={createdNoteURL(createdNote)}
             css={css`
               width: 100%;
+              max-width: 800px;
               min-height: 40px;
               box-sizing: border-box;
+              background-color: var(--accent-dark);
+              color: var(--foreground);
+              padding: 10px;
+              resize: none;
+              font-weight: bold;
+              border: 2px dotted var(--accent);
+              word-break: break-all;
+              overflow-wrap: break-word;
+              text-align: left;
+              font-family: monospace;
             `}
           ></textarea>
           <div

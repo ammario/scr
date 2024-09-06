@@ -1,10 +1,15 @@
 package server
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
 	"embed"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"math/rand"
 	"net/http"
@@ -14,6 +19,7 @@ import (
 	"cdr.dev/slog"
 	"cloud.google.com/go/storage"
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/schema"
 	"google.golang.org/api/googleapi"
 )
 
@@ -63,10 +69,12 @@ func (s *Server) Handler() http.Handler {
 }
 
 type note struct {
-	Contents         string    `json:"contents,omitempty"`
-	ExpiresAt        time.Time `json:"expires_at,omitempty"`
-	DestroyAfterRead bool      `json:"destroy_after_read,omitempty"`
+	Contents         string    `schema:"contents" json:"contents"`
+	ExpiresAt        time.Time `schema:"expires_at" json:"expires_at"`
+	DestroyAfterRead bool      `schema:"destroy_after_read" json:"destroy_after_read"`
 }
+
+var decoder = schema.NewDecoder()
 
 func writePlainText(w http.ResponseWriter, statusCode int, message string, as ...interface{}) {
 	w.WriteHeader(statusCode)
@@ -175,12 +183,31 @@ func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, n)
 }
 
-func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
-	var parsedReq note
+type limitErrReader struct {
+	io.Reader
+	limit int64
+}
 
-	err := json.NewDecoder(r.Body).Decode(&parsedReq)
+func (l *limitErrReader) Read(p []byte) (n int, err error) {
+	n, err = l.Reader.Read(p)
+	l.limit -= int64(n)
+	if l.limit < 0 {
+		return 0, errors.New("limit exceeded")
+	}
+	return
+}
+
+func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseMultipartForm(maxNoteSize)
 	if err != nil {
-		writePlainText(w, http.StatusBadRequest, "parse JSON: %v", err)
+		writePlainText(w, http.StatusBadRequest, "parse form data: %v", err)
+		return
+	}
+
+	var parsedReq note
+	err = decoder.Decode(&parsedReq, r.PostForm)
+	if err != nil {
+		writePlainText(w, http.StatusBadRequest, "decode form data: %v", err)
 		return
 	}
 	if len(parsedReq.Contents) > maxNoteSize {
@@ -191,6 +218,23 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 		writePlainText(w, http.StatusBadRequest, "Note expires too far into the future")
 		return
 	}
+
+	// Get the contents from the form data
+	file, _, err := r.FormFile("contents")
+	if err != nil {
+		writePlainText(w, http.StatusBadRequest, "get form file: %v", err)
+		return
+	}
+	defer file.Close()
+
+	limitedReader := &limitErrReader{Reader: file, limit: maxNoteSize}
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, limitedReader)
+	if err != nil {
+		writePlainText(w, http.StatusBadRequest, "Contents exceed max note size of %v bytes", maxNoteSize)
+		return
+	}
+	parsedReq.Contents = buf.String()
 
 	for attempts := 0; attempts < 10; attempts++ {
 		objectName, err := s.findObjectID(r.Context())
@@ -205,6 +249,10 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 			// Conflicts are common and possible due to our ID generation logic.
 			DoesNotExist: true,
 		})
+
+		// There is a lot of copying and amplification due to JSON. I'll fix it
+		// if the service becomes popular. But, for now, I don't want to deal
+		// with the work.
 
 		hw := objectHandle.NewWriter(r.Context())
 		json.NewEncoder(hw).Encode(parsedReq)
@@ -221,6 +269,11 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 			s.Log.Error(r.Context(), "write to storage", slog.Error(err))
 			return
 		}
+		csm := sha256.Sum256([]byte(parsedReq.Contents))
+		s.Log.Info(r.Context(), "created note", slog.F("id", objectName),
+			slog.F("size", len(parsedReq.Contents)),
+			slog.F("checksum", hex.EncodeToString(csm[:])),
+		)
 		writePlainText(w, http.StatusCreated, objectName)
 		return
 	}

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { apiNote } from ".";
 import { Button } from "../components/Button";
 import { ErrorBox } from "../components/ErrorBox";
-import { decryptPayload } from "../util/crypto";
+import { calculateChecksum, decryptPayload } from "../util/crypto";
 import { borderRadius, colorMixins } from "../util/theme";
 import { FlexColumn } from "../components/Flex";
 var duration = require("dayjs/plugin/duration");
@@ -41,9 +41,12 @@ export default function ViewNote() {
           setErr("This note doesn't exist.");
           return;
         }
-        resp.json().then((note: apiNote) => {
+        resp.json().then(async (note: apiNote) => {
           var t = undefined;
           if (note.contents) {
+            const cipherChecksum = await calculateChecksum(note.contents);
+            console.log("cipher checksum", cipherChecksum);
+            console.log("contents", note.contents);
             t = Buffer.from(
               decryptPayload(note.contents, key),
               "hex"

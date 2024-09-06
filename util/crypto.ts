@@ -1,5 +1,6 @@
 import { pbkdf2Sync } from "crypto";
 import { AES } from "crypto-ts";
+import { createHash } from "crypto";
 
 export const generateUserKey = (): string => {
   let result = "";
@@ -21,9 +22,23 @@ const expandKey = (key: string): string => {
 };
 
 export const encryptPayload = (payload: string, key: string): string => {
-  return AES.encrypt(payload, expandKey(key)).toString();
+  const encrypted = AES.encrypt(payload, expandKey(key));
+  return encrypted.toString();
 };
 
 export const decryptPayload = (payload: string, key: string): string => {
   return AES.decrypt(payload, expandKey(key)).toString();
+};
+
+// Add this new function
+export const calculateChecksum = async (
+  blob: Blob | string
+): Promise<string> => {
+  if (typeof blob === "string") {
+    return createHash("sha256").update(blob).digest("hex");
+  }
+  const arrayBuffer = await blob.arrayBuffer();
+  const hash = createHash("sha256");
+  hash.update(Buffer.from(arrayBuffer));
+  return hash.digest("hex");
 };
