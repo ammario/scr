@@ -8,6 +8,8 @@ export default function ViewNote() {
       css={css`
         display: flex;
         flex-direction: column;
+        // Slightly better for reading.
+        max-width: 600px;
 
         h2 {
           color: ${chroma(colors.h1).mix("white", 0.2).css()};

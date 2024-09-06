@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { CopyAll, DeleteForever, Reply, Visibility } from "@mui/icons-material";
+import { CopyAll, Reply, Visibility } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";

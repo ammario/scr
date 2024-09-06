@@ -1,6 +1,5 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
-import Image from "next/image";
 import { css, Global } from "@emotion/react";
 import {
   colors,
@@ -61,8 +60,8 @@ const globalStyles = css`
     opacity: 0.8;
     margin-top: 0px;
     font-size: 14px;
-    margin-block-end: 4px;
-    margin-block-start: 4px;
+    margin-block-end: 0px;
+    margin-block-start: 0px;
   }
 
   a {
