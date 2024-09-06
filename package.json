@@ -20,6 +20,7 @@
     "@types/pbkdf2": "^3.1.0",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
+    "chroma-js": "^3.0.0",
     "crypto-ts": "^1.0.2",
     "dayjs": "^1.11.7",
     "eslint": "8.33.0",

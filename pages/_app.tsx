@@ -2,20 +2,11 @@ import { AppProps } from "next/app";
 import Head from "next/head";
 import Image from "next/image";
 import { css, Global } from "@emotion/react";
+import { colors, colorMixins } from "../util/theme";
 
 const globalStyles = css`
+  /* Imports and Font Faces */
   @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&display=swap");
-
-  :root {
-    --notePadYellow: #fff16b;
-    --dreamyTeal: #38a0a3;
-    --primaryBlue: #37498b;
-    --nightBlack: #151515;
-    --redwoodRed: #a63d40;
-    --primaryGreen: #198729;
-    --friendlyPurple: #c9b2ff;
-    --deepPurple: #a32e80;
-  }
 
   @font-face {
     font-family: "Berkeley Mono";
@@ -24,135 +15,154 @@ const globalStyles = css`
     font-style: normal;
   }
 
-  button {
-    width: auto; // Changed from 100% to auto
-    justify-content: center;
-    font-size: 14px;
-    background-color: var(--primaryBlue);
-    color: white;
-    min-width: 100px;
-    min-height: 30px;
-    padding: 0 16px; // Added padding for better appearance
+  /* CSS Variables */
+  :root {
+    --background: ${colors.background};
+    --foreground: ${colors.foreground};
+    --accent: ${colors.accent};
+    --accent-light: ${colors.accentLight};
+    --accent-dark: ${colors.accentDark};
+    --success: ${colors.success};
+    --warning: ${colors.warning};
+    --error: ${colors.error};
+    --comment: ${colors.comment};
   }
 
-  button:hover {
-    filter: brightness(120%);
+  /* Global Styles */
+  body {
+    font-family: "Inter", sans-serif;
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
-  .reply-button {
-    background-color: var(--dreamyTeal);
+  button,
+  textarea,
+  select {
+    border-radius: 2px;
   }
 
-  .read-button {
-    background-color: #ffa200;
-    color: black;
-    margin-top: 8px;
-    margin-bottom: 8px;
-  }
-
-  .read-button:hover {
-    background-color: black;
-    color: white; // Added for better contrast when hovering
-  }
-
-  .frontmatter {
-    background: var(--primaryBlue);
-    padding: 12px;
-    color: white;
-  }
-
-  .frontmatter p a {
-    color: white;
-    font-weight: 400;
-  }
-
-  .MuiFormControl-root {
-    background-color: white;
-  }
-
-  a {
-    color: #3b82f6;
-    text-decoration: underline;
-  }
-
+  /* Typography */
   h1 {
     font-size: 24px;
     font-weight: bold;
     margin: 0;
+    color: var(--accent-light);
   }
 
   p {
-    opacity: 0.64;
+    opacity: 0.8;
     margin-top: 0px;
     font-size: 14px;
     margin-block-end: 4px;
     margin-block-start: 4px;
   }
 
+  a {
+    color: var(--accent-light);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  textarea {
+    background-color: ${colorMixins.textareaBackground};
+    color: var(--foreground);
+    border: 1px solid var(--accent);
+  }
+
+  /* Buttons */
+  button {
+    width: auto;
+    justify-content: center;
+    font-size: 14px;
+    background-color: var(--accent-dark);
+    color: var(--foreground);
+    min-width: 100px;
+    min-height: 30px;
+    padding: 0 16px;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: var(--accent);
+  }
+
+  .reply-button {
+    background-color: var(--success);
+  }
+
+  .read-button {
+    background-color: var(--warning);
+    color: var(--background);
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .read-button:hover {
+    background-color: var(--accent-light);
+    color: var(--background);
+  }
+
+  /* Form Elements */
+  select {
+    background-color: var(--accent-dark);
+    color: var(--foreground);
+    border: 1px solid var(--accent);
+  }
+
+  /* Custom Components */
+  .frontmatter {
+    background: var(--accent-dark);
+    padding: 12px;
+    color: var(--foreground);
+  }
+
+  .frontmatter p a {
+    color: var(--accent-light);
+    font-weight: 400;
+  }
+
   .tagline {
     opacity: 1;
   }
 
-  .MuiOutlinedInput-root > textarea {
-    font-family: "Berkeley Mono", monospace;
-  }
-
-  .MuiTypography-root {
-    font-family: "Inter";
-  }
-
-  body {
-    font-family: "Inter";
-    background-color: #f0f0f0;
-  }
-
   #copy-url-box {
     text-align: center;
-    background-color: #4d4d4d;
-    color: aliceblue;
+    background-color: var(--accent-dark);
+    color: var(--foreground);
     padding: 10px;
     resize: none;
     font-weight: bold;
-    border-color: black;
-    border-style: dotted;
-    border-width: 2px;
+    border: 2px dotted var(--accent);
   }
 
   .error-box {
     text-align: center;
     padding: 10px;
-    background-color: #b30117;
+    background-color: var(--error);
     font-weight: bold;
-    color: white;
-    border-color: black;
-    border-style: solid;
-    border-width: 1px;
+    color: var(--foreground);
+    border: 1px solid var(--accent);
     margin-bottom: 10px;
   }
 
-  select {
-    border-radius: 0px;
-    background-color: white;
-  }
-
   .success-box {
+    border-radius: 2px;
     text-align: center;
     padding: 5px;
-    background-color: var(--primaryGreen);
-    color: white;
-    border-color: black;
-    border-style: solid;
-    border-width: 1px;
+    background-color: var(--success);
+    border: 1px solid var(--black);
   }
 
   .view-box {
-    background-color: #ffffff;
-    color: black;
+    background-color: var(--accent-dark);
+    color: var(--foreground);
     padding: 10px;
     font-family: "Berkeley Mono", monospace;
-    border-color: black;
-    border-style: dashed;
-    border-width: 2px;
+    border: 2px dashed var(--accent);
     white-space: pre-wrap;
     word-break: break-word;
   }
@@ -161,8 +171,24 @@ const globalStyles = css`
     padding-bottom: 16px;
   }
 
+  /* Material-UI Overrides */
+  .MuiFormControl-root {
+    background-color: var(--accent-dark);
+  }
+
+  .MuiOutlinedInput-root > textarea {
+    font-family: "Berkeley Mono", monospace;
+    color: var(--foreground);
+  }
+
+  .MuiTypography-root {
+    font-family: "Inter", sans-serif;
+    color: var(--foreground);
+  }
+
   svg.MuiSvgIcon-root {
     width: 20px;
+    color: var(--accent-light);
   }
 `;
 
@@ -233,7 +259,7 @@ export default function App({ Component, pageProps }: AppProps) {
           css={css`
             height: 0;
             color: inherit;
-            border: 1px solid #ddd;
+            border: 1px solid ${colorMixins.hrBackground};
           `}
         />
         <Component {...pageProps} />

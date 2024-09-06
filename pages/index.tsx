@@ -98,14 +98,17 @@ export default function Home() {
             placeholder="Your private note goes here. Tip: Press Ctrl+Enter when you're done."
             value={cleartext}
             onChange={(e) => setCleartext(e.target.value)}
-            style={{
-              width: "100%",
-              minHeight: "160px",
-              boxSizing: "border-box",
-              padding: "8px",
-              border: "1px solid #ccc",
-              resize: "vertical",
-            }}
+            css={css`
+              width: 100%;
+              min-height: 160px;
+              box-sizing: border-box;
+              padding: 8px;
+              resize: vertical;
+
+              :focus {
+                outline: 1px solid ${colors.accent};
+              }
+            `}
           />
           <div
             css={css`
@@ -124,7 +127,7 @@ export default function Home() {
           >
             <Button
               css={css`
-                background-color: ${colors.primaryBlue};
+                background-color: ${colors.accent};
                 color: white;
                 min-width: 100px;
                 min-height: 30px;
@@ -210,7 +213,7 @@ export default function Home() {
           >
             <button
               css={css`
-                background-color: ${colors.primaryBlue};
+                background-color: ${colors.accent};
                 color: white;
                 display: flex;
                 align-items: center;
