@@ -54,7 +54,7 @@ const globalStyles = css`
     font-size: 24px;
     font-weight: bold;
     margin: 0;
-    color: var(--accent-light);
+    color: ${colors.h1};
   }
 
   p {
@@ -197,15 +197,6 @@ const Frontmatter = () => {
         gap: 16px;
       `}
     >
-      <a href="/">
-        <Image
-          width="48"
-          height="48"
-          alt="Icon"
-          className="logo"
-          src={"/favicon.ico"}
-        />
-      </a>
       <div>
         <h1>
           <a href="/" style={{ color: "inherit", textDecoration: "none" }}>
@@ -235,7 +226,9 @@ const Frontmatter = () => {
             `}
           >
             <a href="/about">About</a>
-            <a href="https://github.com/ammario/scr">View Source</a>
+            <a target="_blank" href="https://github.com/ammario/scr">
+              View Source
+            </a>
           </div>
         </div>
       </div>

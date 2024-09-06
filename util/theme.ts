@@ -8,6 +8,8 @@ export const colors = {
   accentLight: "#9cdcfe",
   accentDark: "#264f78",
 
+  h1: "#008cff",
+
   // Semantic colors
   success: "#17932e", // A more muted green
   warning: "#ffb12c",
