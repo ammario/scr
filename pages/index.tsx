@@ -1,17 +1,16 @@
+import { css } from "@emotion/react";
 import { CopyAll } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { useState } from "react";
+import { Button } from "../components/Button";
 import { ErrorBox } from "../components/ErrorBox";
+import { FlexColumn } from "../components/Flex";
 import {
   calculateChecksum,
   encryptPayload,
   generateUserKey,
 } from "../util/crypto";
-import { css } from "@emotion/react";
 import { colors } from "../util/theme";
-import { Button } from "../components/Button";
-import { FlexColumn } from "../components/Flex";
-import { Base64 } from "js-base64";
 
 export interface apiNote {
   contents: string;
