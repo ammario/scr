@@ -1,6 +1,7 @@
 import { pbkdf2Sync } from "crypto";
 import { AES } from "crypto-ts";
 import { createHash } from "crypto";
+import { enc } from "crypto-ts";
 
 export const generateUserKey = (): string => {
   let result = "";
@@ -27,7 +28,8 @@ export const encryptPayload = (payload: string, key: string): string => {
 };
 
 export const decryptPayload = (payload: string, key: string): string => {
-  return AES.decrypt(payload, expandKey(key)).toString();
+  const decrypted = AES.decrypt(payload, expandKey(key));
+  return decrypted.toString(enc.Utf8);
 };
 
 // Add this new function

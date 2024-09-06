@@ -46,11 +46,7 @@ export default function ViewNote() {
           if (note.contents) {
             const cipherChecksum = await calculateChecksum(note.contents);
             console.log("cipher checksum", cipherChecksum);
-            console.log("contents", note.contents);
-            t = Buffer.from(
-              decryptPayload(note.contents, key),
-              "hex"
-            ).toString();
+            t = decryptPayload(note.contents, key);
             if (t.length == 0) {
               setErr("Decryption failed. Your URL is probably malformed.");
               return;

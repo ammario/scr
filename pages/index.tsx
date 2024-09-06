@@ -47,9 +47,10 @@ export default function Home() {
     const ciphertext = encryptPayload(cleartext, key);
 
     const formData = new FormData();
-    const blob = new Blob([Base64.atob(ciphertext)], {
+    const blob = new Blob([ciphertext], {
       type: "application/octet-stream",
     });
+    formData.append("version", "1");
     formData.append("destroy_after_read", destroyAfterRead.toString());
     formData.append(
       "expires_at",

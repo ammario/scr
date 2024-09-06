@@ -27,7 +27,8 @@
     "incremental": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "types": ["bun-types"]
   },
   "include": [
     "next-env.d.ts",

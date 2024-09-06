@@ -72,6 +72,8 @@ type note struct {
 	Contents         string    `schema:"contents" json:"contents"`
 	ExpiresAt        time.Time `schema:"expires_at" json:"expires_at"`
 	DestroyAfterRead bool      `schema:"destroy_after_read" json:"destroy_after_read"`
+	// Version is used to track changes to the note schema.
+	Version int `schema:"version" json:"version"`
 }
 
 var decoder = schema.NewDecoder()
@@ -234,6 +236,7 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 		writePlainText(w, http.StatusBadRequest, "Contents exceed max note size of %v bytes", maxNoteSize)
 		return
 	}
+	// buffer is already a base64
 	parsedReq.Contents = buf.String()
 
 	for attempts := 0; attempts < 10; attempts++ {
@@ -269,10 +272,14 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 			s.Log.Error(r.Context(), "write to storage", slog.Error(err))
 			return
 		}
-		csm := sha256.Sum256([]byte(parsedReq.Contents))
+		var (
+			ogCsm  = sha256.Sum256(buf.Bytes())
+			b64csm = sha256.Sum256([]byte(parsedReq.Contents))
+		)
 		s.Log.Info(r.Context(), "created note", slog.F("id", objectName),
 			slog.F("size", len(parsedReq.Contents)),
-			slog.F("checksum", hex.EncodeToString(csm[:])),
+			slog.F("og_checksum", hex.EncodeToString(ogCsm[:])),
+			slog.F("b64_checksum", hex.EncodeToString(b64csm[:])),
 		)
 		writePlainText(w, http.StatusCreated, objectName)
 		return
