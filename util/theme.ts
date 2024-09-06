@@ -22,6 +22,9 @@ export const colors = {
   backgroundTransparent: "#ffffff", // Used in textarea background
 };
 
+export const borderRadius = "2px";
+export const buttonBorderRadius = "4px";
+
 export const colorMixins = {
   textareaBackground: `color-mix(in srgb, ${colors.background} 90%, ${colors.backgroundTransparent})`,
   selectBackground: `color-mix(in srgb, ${colors.background} 90%, ${colors.backgroundTransparent})`,

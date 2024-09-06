@@ -6,6 +6,7 @@ import { encryptPayload, generateUserKey } from "../util/crypto";
 import { css } from "@emotion/react";
 import { colors } from "../util/theme";
 import { Button } from "../components/Button";
+import { FlexColumn } from "../components/Flex";
 
 export interface apiNote {
   contents: string;
@@ -68,12 +69,12 @@ export default function Home() {
   };
 
   return (
-    <div
-      css={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "0.25em",
-      }}
+    <FlexColumn
+      css={css`
+        max-width: 800px;
+        width: 100%;
+        box-sizing: border-box;
+      `}
     >
       {createErrorMessage !== undefined ? (
         <ErrorBox>{createErrorMessage}</ErrorBox>
@@ -91,91 +92,100 @@ export default function Home() {
               handleSubmit();
             }
           }}
+          css={css`
+            width: 100%;
+            box-sizing: border-box;
+          `}
         >
-          <textarea
-            id="secret-input"
-            className="secret-text"
-            placeholder="Your private note goes here. Tip: Press Ctrl+Enter when you're done."
-            value={cleartext}
-            onChange={(e) => setCleartext(e.target.value)}
-            css={css`
-              width: 100%;
-              min-height: 160px;
-              box-sizing: border-box;
-              padding: 8px;
-              resize: vertical;
-
-              :focus {
-                outline: 1px solid ${colors.accent};
-              }
-            `}
-          />
-          <div
-            css={css`
-              font-size: 12px;
-              display: flex;
-              flex-direction: row;
-              gap: 1em;
-              align-items: center;
-
-              & .inputArea {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-              }
-            `}
-          >
-            <Button
+          <FlexColumn>
+            <textarea
+              id="secret-input"
+              className="secret-text"
+              placeholder="Your private note goes here. Tip: Press Ctrl+Enter when you're done."
+              value={cleartext}
+              onChange={(e) => setCleartext(e.target.value)}
               css={css`
-                background-color: ${colors.accent};
-                color: white;
-                min-width: 100px;
-                min-height: 30px;
-              `}
-              color="success"
-            >
-              Create
-            </Button>
+                width: 100%;
+                max-width: 800px;
+                min-height: 160px;
+                box-sizing: border-box;
+                padding: 8px;
+                resize: vertical;
+                display: block; // Ensure it takes up full width
 
-            {/* Spacer */}
+                :focus {
+                  outline: 1px solid ${colors.accent};
+                }
+              `}
+            />
             <div
               css={css`
-                flex-grow: 1;
+                font-size: 12px;
+                display: flex;
+                flex-direction: row;
+                gap: 1em;
+                align-items: center;
+                width: 100%;
+
+                & .inputArea {
+                  display: flex;
+                  flex-direction: column;
+                  align-items: flex-start;
+                }
               `}
-            ></div>
-            <div className="inputArea">
-              <label htmlFor="expires-after">Expires after</label>
-              <select
-                id="expires-after"
-                value={expiresAfterHours}
-                onChange={(e) => setExpiresAfterHours(Number(e.target.value))}
-              >
-                <option value={1}>1 hour</option>
-                <option value={8}>8 hours</option>
-                <option value={24}>24 hours</option>
-                <option value={24 * 3}>3 days</option>
-                <option value={24 * 7}>7 days</option>
-                <option value={24 * 30}>30 days</option>
-              </select>
-            </div>
-            <div className="inputArea">
-              <label
+            >
+              <Button
                 css={css`
-                  margin-left: 3px;
+                  background-color: ${colors.accent};
+                  color: white;
+                  min-width: 100px;
+                  min-height: 30px;
                 `}
-                htmlFor="destroy-after-read"
+                color="success"
               >
-                Destroy after read
-              </label>
-              <input
-                type="checkbox"
-                id="destroy-after-read"
-                onChange={() => setDestroyAfterRead(!destroyAfterRead)}
-                defaultChecked={destroyAfterRead}
-                value={destroyAfterRead.toString()}
-              />
+                Create
+              </Button>
+
+              {/* Spacer */}
+              <div
+                css={css`
+                  flex-grow: 1;
+                `}
+              ></div>
+              <div className="inputArea">
+                <label htmlFor="expires-after">Expires after</label>
+                <select
+                  id="expires-after"
+                  value={expiresAfterHours}
+                  onChange={(e) => setExpiresAfterHours(Number(e.target.value))}
+                >
+                  <option value={1}>1 hour</option>
+                  <option value={8}>8 hours</option>
+                  <option value={24}>24 hours</option>
+                  <option value={24 * 3}>3 days</option>
+                  <option value={24 * 7}>7 days</option>
+                  <option value={24 * 30}>30 days</option>
+                </select>
+              </div>
+              <div className="inputArea">
+                <label
+                  css={css`
+                    margin-left: 3px;
+                  `}
+                  htmlFor="destroy-after-read"
+                >
+                  Destroy after read
+                </label>
+                <input
+                  type="checkbox"
+                  id="destroy-after-read"
+                  onChange={() => setDestroyAfterRead(!destroyAfterRead)}
+                  defaultChecked={destroyAfterRead}
+                  value={destroyAfterRead.toString()}
+                />
+              </div>
             </div>
-          </div>
+          </FlexColumn>
         </form>
       ) : (
         <>
@@ -235,6 +245,6 @@ export default function Home() {
           </div>
         </>
       )}
-    </div>
+    </FlexColumn>
   );
 }

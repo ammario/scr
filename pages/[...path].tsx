@@ -7,7 +7,8 @@ import { apiNote } from ".";
 import { Button } from "../components/Button";
 import { ErrorBox } from "../components/ErrorBox";
 import { decryptPayload } from "../util/crypto";
-import { colorMixins } from "../util/theme";
+import { borderRadius, colorMixins } from "../util/theme";
+import { FlexColumn } from "../components/Flex";
 var duration = require("dayjs/plugin/duration");
 var relativeTime = require("dayjs/plugin/relativeTime");
 
@@ -74,21 +75,10 @@ export default function ViewNote() {
   }, [objectID]);
 
   return (
-    <div
-      css={css`
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        justify-content: center;
-        gap: 10px;
-        max-width: 800px;
-        width: 100%; // Add this line
-        box-sizing: border-box; // Add this line
-      `}
-    >
+    <div>
       {err && <ErrorBox>{err}</ErrorBox>}
       {note && err === undefined && (
-        <div
+        <FlexColumn
           css={css`
             width: 100%; // Add this line
           `}
@@ -122,6 +112,7 @@ export default function ViewNote() {
                   padding: 10px;
                   font-family: "Berkeley Mono", monospace;
                   border: 2px dashed var(--accent);
+                  border-radius: ${borderRadius};
                   white-space: pre-wrap;
                   word-break: break-word;
                   box-sizing: border-box;
@@ -217,7 +208,7 @@ export default function ViewNote() {
               </button>
             </div>
           )}
-        </div>
+        </FlexColumn>
       )}
     </div>
   );

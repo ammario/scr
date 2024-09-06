@@ -2,7 +2,12 @@ import { AppProps } from "next/app";
 import Head from "next/head";
 import Image from "next/image";
 import { css, Global } from "@emotion/react";
-import { colors, colorMixins } from "../util/theme";
+import {
+  colors,
+  colorMixins,
+  borderRadius,
+  buttonBorderRadius,
+} from "../util/theme";
 
 const globalStyles = css`
   /* Imports and Font Faces */
@@ -35,10 +40,13 @@ const globalStyles = css`
     color: var(--foreground);
   }
 
+  textarea {
+    border-radius: ${borderRadius};
+  }
+
   button,
-  textarea,
   select {
-    border-radius: 2px;
+    border-radius: ${buttonBorderRadius};
   }
 
   /* Typography */
@@ -59,7 +67,9 @@ const globalStyles = css`
 
   a {
     color: var(--accent-light);
-    text-decoration: none;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
   }
 
   a:hover {
@@ -70,6 +80,11 @@ const globalStyles = css`
     background-color: ${colorMixins.textareaBackground};
     color: var(--foreground);
     border: 1px solid var(--accent);
+  }
+
+  label {
+    font-size: 12px;
+    margin-left: 2px;
   }
 
   /* Buttons */
@@ -99,6 +114,7 @@ const globalStyles = css`
     background-color: ${colorMixins.selectBackground};
     color: var(--foreground);
     border: 1px solid var(--accent);
+    padding: 2px;
   }
 
   /* Custom Components */
@@ -138,7 +154,7 @@ const globalStyles = css`
   }
 
   .success-box {
-    border-radius: 2px;
+    border-radius: ${borderRadius};
     text-align: center;
     padding: 5px;
     background-color: var(--success);
@@ -188,7 +204,7 @@ const Frontmatter = () => {
           alt="Icon"
           className="logo"
           src={"/favicon.ico"}
-        ></Image>
+        />
       </a>
       <div>
         <h1>
@@ -196,10 +212,32 @@ const Frontmatter = () => {
             s.cr
           </a>
         </h1>
-        <p>
-          Send encrypted, self-destructing notes.{" "}
-          <a href="/about">Learn more.</a>
-        </p>
+        <div
+          css={css`
+            display: flex;
+            flex-direction: column;
+          `}
+        >
+          <p
+            css={css`
+              margin-bottom: 0px;
+            `}
+          >
+            Send encrypted, self-destructing notes.
+          </p>
+          <div
+            css={css`
+              display: flex;
+              flex-direction: row;
+              gap: 16px;
+              font-size: 12px;
+              margin-top: 8px;
+            `}
+          >
+            <a href="/about">About</a>
+            <a href="https://github.com/ammario/scr">View Source</a>
+          </div>
+        </div>
       </div>
     </div>
   );
