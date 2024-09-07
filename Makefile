@@ -13,3 +13,11 @@ deploy: build-go
 fmt:
 	npm x prettier -- --write '**/*.{js,jsx,ts,tsx}' \
 		--ignore-path .gitignore
+
+.PHONY: test bun-test go-test
+bun-test:
+	bun test
+go-test:
+	go test ./...
+
+test: bun-test go-test

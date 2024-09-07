@@ -8,7 +8,7 @@ import { ErrorBox } from "../components/ErrorBox";
 import { FlexColumn } from "../components/Flex";
 import ProgressBar from "../components/ProgressBar";
 import {
-  encryptBufferPayload,
+  encryptBuffer,
   encryptStringPayload,
   generateUserKey,
 } from "../util/crypto";
@@ -75,7 +75,7 @@ export default function Home() {
 
     if (file) {
       const buf = await file.arrayBuffer();
-      const fileEncrypted = encryptBufferPayload(buf, key);
+      const fileEncrypted = encryptBuffer(buf, key);
       formData.append("file_contents", new Blob([fileEncrypted]), file.name);
       formData.append("file_name", file.name);
     }

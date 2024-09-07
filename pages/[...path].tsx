@@ -8,7 +8,7 @@ import { Button } from "../components/Button";
 import { ErrorBox } from "../components/ErrorBox";
 import {
   calculateChecksum,
-  decryptBufferPayload,
+  decryptBuffer,
   decryptStringPayload,
 } from "../util/crypto";
 import { borderRadius, colorMixins, colors } from "../util/theme";
@@ -33,7 +33,7 @@ const ViewFile = ({
   const handleDownload = () => {
     try {
       // Decrypt the file contents
-      const decryptedContents = decryptBufferPayload(
+      const decryptedContents = decryptBuffer(
         note.file_contents,
         decryptionKey
       );
