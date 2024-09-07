@@ -14,10 +14,14 @@ fmt:
 	npm x prettier -- --write '**/*.{js,jsx,ts,tsx}' \
 		--ignore-path .gitignore
 
-.PHONY: test bun-test go-test
+.PHONY: test bun-test go-test playwright-test
+playwright-test:
+	bun x playwright test e2e
+
 bun-test:
-	bun test
+	bun test 
+
 go-test:
 	go test ./...
 
-test: bun-test go-test
+test: bun-test go-test playwright-test

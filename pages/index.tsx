@@ -299,6 +299,7 @@ export default function Home() {
           </p>
           <textarea
             readOnly
+            data-testid="note-url"
             onMouseEnter={(e) => {
               // @ts-ignore
               e.target.select();

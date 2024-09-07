@@ -3,3 +3,5 @@ node_modules
 server/dist/
 bin
 yarn-error.log
+test-results
+playwright-report

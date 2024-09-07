@@ -322,6 +322,7 @@ export default function ViewNote() {
                     margin-right: 2px;
                   }
                 `}
+                data-testid="read-note-button"
                 className="read-button"
                 onClick={() => {
                   retrieveNote(false);
