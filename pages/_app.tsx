@@ -207,6 +207,9 @@ const Frontmatter = () => {
             <a target="_blank" href="https://github.com/ammario/scr">
               View Source
             </a>
+            <a target="_blank" href="https://github.com/ammario/scr/issues/new">
+              Report Issue
+            </a>
           </div>
         </div>
       </div>
