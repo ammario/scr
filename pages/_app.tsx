@@ -183,6 +183,13 @@ const globalStyles = css`
     width: 20px;
     color: var(--accent-light);
   }
+
+  textarea,
+  pre,
+  code {
+    font-family: "Berkeley Mono", Menlo, Monaco, Consolas, "Courier New",
+      monospace;
+  }
 `;
 
 const Frontmatter = () => {
