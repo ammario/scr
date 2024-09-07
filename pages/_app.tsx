@@ -162,6 +162,13 @@ const globalStyles = css`
   svg.MuiSvgIcon-root {
     width: 20px;
   }
+
+  textarea,
+  pre,
+  code {
+    font-family: "Berkeley Mono", Menlo, Monaco, Consolas, "Courier New",
+      monospace;
+  }
 `;
 
 const Frontmatter = () => {

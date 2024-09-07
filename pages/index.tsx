@@ -159,6 +159,7 @@ export default function Home() {
                 padding: 8px;
                 resize: vertical;
                 display: block; // Ensure it takes up full width
+                font-size: 14px;
 
                 :focus {
                   outline: 1px solid ${colors.accent};
