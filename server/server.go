@@ -73,7 +73,7 @@ type note struct {
 	// Version is used to track changes to the note schema.
 	Version      int    `schema:"version" json:"version"`
 	FileName     string `schema:"file_name" json:"file_name,omitempty"`
-	FileContents string `schema:"file_contents" json:"file_contents,omitempty"`
+	FileContents []byte `schema:"file_contents" json:"file_contents,omitempty"`
 }
 
 var decoder = schema.NewDecoder()
@@ -158,7 +158,7 @@ func (s *Server) getNote(w http.ResponseWriter, r *http.Request) {
 	// to see the note?"
 	if r.URL.Query().Has("peek") && n.DestroyAfterRead {
 		n.Contents = ""
-		n.FileContents = ""
+		n.FileContents = nil
 		writeJSON(w, http.StatusOK, n)
 		return
 	}
@@ -228,7 +228,7 @@ func (s *Server) postNote(w http.ResponseWriter, r *http.Request) {
 			writePlainText(w, http.StatusInternalServerError, "Failed to read file contents")
 			return
 		}
-		parsedReq.FileContents = string(fileContents)
+		parsedReq.FileContents = fileContents
 		parsedReq.FileName = r.FormValue("file_name")
 	}
 

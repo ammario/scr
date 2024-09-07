@@ -30,11 +30,11 @@ const ViewFile = ({
 }) => {
   if (!note.file_name) return null;
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     try {
       // Decrypt the file contents
-      const decryptedContents = decryptBuffer(
-        note.file_contents,
+      const decryptedContents = await decryptBuffer(
+        new Uint8Array(Buffer.from(note.file_contents, "base64")),
         decryptionKey
       );
 

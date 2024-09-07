@@ -75,7 +75,7 @@ export default function Home() {
 
     if (file) {
       const buf = await file.arrayBuffer();
-      const fileEncrypted = encryptBuffer(buf, key);
+      const fileEncrypted = await encryptBuffer(new Uint8Array(buf), key);
       formData.append("file_contents", new Blob([fileEncrypted]), file.name);
       formData.append("file_name", file.name);
     }
