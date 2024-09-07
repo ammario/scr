@@ -92,7 +92,7 @@ const globalStyles = css`
     justify-content: center;
     font-size: 14px;
     background-color: var(--accent-dark);
-    color: var(--foreground);
+    color: white;
     min-width: 100px;
     min-height: 30px;
     padding: 0 16px;
@@ -161,7 +161,6 @@ const globalStyles = css`
 
   svg.MuiSvgIcon-root {
     width: 20px;
-    color: white;
   }
 `;
 

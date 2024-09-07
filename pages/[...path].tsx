@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { CopyAll, Reply, Visibility } from "@mui/icons-material";
+import { CopyAll, Download, Reply, Visibility } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -21,6 +21,12 @@ var relativeTime = require("dayjs/plugin/relativeTime");
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
+const estimateBase64Length = (base64Length: number) => {
+  // Each base64 character is 6 bits, so we need to multiply by 6/8 to get the
+  // number of bytes.
+  return (base64Length * 6) / 8;
+};
+
 const ViewFile = ({
   file: note,
   decryptionKey,
@@ -30,42 +36,61 @@ const ViewFile = ({
 }) => {
   if (!note.file_name) return null;
 
-  const handleDownload = async () => {
-    try {
-      // Decrypt the file contents
-      const decryptedContents = await decryptBuffer(
-        new Uint8Array(Buffer.from(note.file_contents, "base64")),
-        decryptionKey
-      );
+  const [decryptedChecksum, setDecryptedChecksum] = useState<
+    string | undefined
+  >(undefined);
+  const [decryptedContents, setDecryptedContents] = useState<
+    Uint8Array | undefined
+  >(undefined);
+  const [decryptionError, setDecryptionError] = useState<string | undefined>(
+    undefined
+  );
 
-      console.log("file_contents_length", note.file_contents.length);
-      console.log("decrypt_length", decryptedContents.byteLength);
-      // Create a Blob from the decrypted contents
-      const blob = new Blob([decryptedContents], {
-        type: "application/octet-stream",
-      });
+  useEffect(() => {
+    const decryptFile = async () => {
+      try {
+        const decrypted = await decryptBuffer(
+          new Uint8Array(Buffer.from(note.file_contents, "base64")),
+          decryptionKey
+        );
+        setDecryptedContents(decrypted);
+        setDecryptedChecksum(await calculateChecksum(new Blob([decrypted])));
+      } catch (error) {
+        console.error("Failed to decrypt file contents:", error);
+        setDecryptionError(
+          "Failed to decrypt file contents. The decryption key might be incorrect."
+        );
+      }
+    };
 
-      // Create a temporary URL for the Blob
-      const url = window.URL.createObjectURL(blob);
+    decryptFile();
+  }, [note.file_contents, decryptionKey]);
 
-      // Create a temporary anchor element
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = note.file_name;
+  const handleDownload = async (contents: Uint8Array) => {
+    // Create a Blob from the decrypted contents
+    const blob = new Blob([contents], {
+      type: "application/octet-stream",
+    });
 
-      // Trigger the download
-      document.body.appendChild(a);
-      a.click();
+    // Create a temporary URL for the Blob
+    const url = window.URL.createObjectURL(blob);
 
-      // Clean up
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error("Failed to decrypt file contents:", error);
-      alert(
-        "Failed to decrypt file contents. The decryption key might be incorrect."
-      );
-    }
+    // Create a temporary anchor element
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = note.file_name;
+
+    // Trigger the download
+    document.body.appendChild(a);
+    a.click();
+
+    // Clean up
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    alert(
+      "Failed to decrypt file contents. The decryption key might be incorrect."
+    );
   };
 
   return (
@@ -76,32 +101,66 @@ const ViewFile = ({
         background-color: ${colorMixins.selectBackground};
         border: 1px solid ${colors.accent};
         border-radius: ${borderRadius};
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
       `}
     >
-      <span
-        css={css`
-          margin-right: 10px;
-        `}
-      >
-        {note.file_name} ({filesize(note.file_contents.length)})
-      </span>
-      <a
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          handleDownload();
-        }}
-        css={css`
-          color: ${colors.accent};
-          text-decoration: none;
-          &:hover {
-            text-decoration: underline;
-            color: ${colors.accentLight};
-          }
-        `}
-      >
-        Download
-      </a>
+      <div>
+        <span
+          css={css`
+            margin-right: 10px;
+          `}
+        >
+          {note.file_name} (
+          {filesize(estimateBase64Length(note.file_contents.length))})
+        </span>
+        {decryptionError && <ErrorBox>{decryptionError}</ErrorBox>}
+
+        {decryptedChecksum && (
+          <div
+            css={css`
+              font-size: 10px;
+              color: ${colors.foregroundDark};
+            `}
+          >
+            sha256: {decryptedChecksum}
+          </div>
+        )}
+      </div>
+      <div>
+        {decryptedContents !== undefined ? (
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              handleDownload(decryptedContents);
+            }}
+            css={css`
+              color: ${colors.accent};
+              text-decoration: none;
+              display: flex;
+              align-items: center;
+              &:hover {
+                text-decoration: underline;
+                color: ${colors.accentLight};
+              }
+            `}
+          >
+            <Download
+              css={css`
+                margin-right: 4px;
+                font-size: 1em;
+              `}
+            />
+            Download
+          </a>
+        ) : (
+          <div>Decrypting...</div>
+        )}
+      </div>
     </div>
   );
 };
@@ -141,6 +200,7 @@ export default function ViewNote() {
       };
 
       xhr.onload = () => {
+        setDownloadProgress(1); // Reset progress
         if (xhr.status === 404) {
           setErr("This note doesn't exist.");
           return;
@@ -151,7 +211,6 @@ export default function ViewNote() {
         } else {
           setErr(`HTTP error! status: ${xhr.status}\n${xhr.responseText}`);
         }
-        setDownloadProgress(1); // Reset progress
       };
 
       xhr.onerror = () => {

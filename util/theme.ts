@@ -2,6 +2,7 @@ export const colors = {
   // Base colors
   background: "#1e1e1e",
   foreground: "#d4d4d4",
+  foregroundDark: "#c0c0c0",
 
   // Accent colors
   accent: "#1279ce",
