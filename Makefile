@@ -2,6 +2,7 @@
 
 build-frontend:
 	# rm -rf server/dist/* .next/*
+	bun i
 	bun run next build && bun run next export -o server/dist
 
 build-go: build-frontend
