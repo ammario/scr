@@ -34,14 +34,13 @@ const config: PlaywrightTestConfig = {
       timeout: 60000,
     },
     {
-      command: "bun run dev",
+      command: "bun run start",
       port: 3010,
       env: {
         PORT: "3010",
         API_URL: "http://localhost:3011",
       },
-      // We want to avoid live reloading in playwright tests
-      reuseExistingServer: false,
+      reuseExistingServer: true,
       timeout: 60000,
     },
   ],

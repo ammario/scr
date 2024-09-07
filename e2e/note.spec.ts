@@ -2,7 +2,9 @@ import { test, expect } from "@playwright/test";
 
 test("Create and view a note", async ({ page }) => {
   // Navigate to the home page
-  await page.goto("http://localhost:3010");
+  await page.goto("http://localhost:3010", {
+    timeout: 10000,
+  });
 
   const noteValue = "This is a test note";
 
