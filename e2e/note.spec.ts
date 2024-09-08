@@ -14,6 +14,9 @@ test("Create and view a note", async ({ page }) => {
   // Fill in the note content
   await page.fill("textarea#secret-input", noteValue);
 
+  // Check the "Destroy after read" checkbox
+  await page.check("input#destroy-after-read");
+
   // Click the create button
   await page.click('button:has-text("Create")');
 

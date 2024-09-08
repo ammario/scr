@@ -132,7 +132,7 @@ function FileInput({ onFileChange }: FileInputProps) {
 
 export default function Home() {
   const [cleartext, setCleartext] = useState<string>("");
-  const [destroyAfterRead, setDestroyAfterRead] = useState<boolean>(true);
+  const [destroyAfterRead, setDestroyAfterRead] = useState<boolean>(false);
   const [expiresAfterHours, setExpiresAfterHours] = useState<number>(24);
 
   const [createdNote, setCreatedObjectID] = useState<createdNote>();
