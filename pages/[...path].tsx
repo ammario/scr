@@ -95,6 +95,8 @@ const ViewFile = ({
 
   return (
     <div
+      className="view-file"
+      data-testid="view-file"
       css={css`
         margin-top: 10px;
         padding: 10px;

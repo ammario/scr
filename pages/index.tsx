@@ -31,6 +31,85 @@ function createdNoteURL(o: createdNote): string {
   return location.origin + "/" + o.id + "#" + o.key;
 }
 
+interface FileInputProps {
+  onFileChange: (file: File | null) => void;
+}
+
+function FileInput({ onFileChange }: FileInputProps) {
+  const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | undefined>();
+  const [fileSize, setFileSize] = useState<string | undefined>();
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const selectedFile = event.target.files[0];
+      setFile(selectedFile);
+      setFileName(selectedFile.name);
+      setFileSize(filesize(selectedFile.size));
+      onFileChange(selectedFile);
+    }
+  };
+
+  return (
+    <div className="inputArea">
+      <label htmlFor="file-input">Attach file</label>
+      <div
+        css={css`
+          position: relative;
+          overflow: hidden;
+          display: inline-block;
+        `}
+      >
+        <button
+          type="button"
+          css={css`
+            font-size: 12px;
+            padding: 2px 4px;
+            background-color: ${colorMixins.selectBackground};
+            color: ${colors.foreground};
+            border: 1px solid ${colors.accent};
+            border-radius: 4px;
+            margin-bottom: 0px;
+            margin-top: 0px;
+            min-height: 23px;
+            min-width: 80px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+          `}
+        >
+          <AttachFile
+            fontSize="small"
+            css={css`
+              font-size: 12px !important;
+            `}
+          />
+          <span>
+            {fileName ? fileName : "Choose"}
+            {fileSize ? ` (${fileSize})` : ""}
+          </span>
+        </button>
+        <input
+          type="file"
+          id="file-input"
+          data-testid="file-input"
+          onChange={handleFileChange}
+          ref={fileInputRef}
+          css={css`
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+          `}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const [cleartext, setCleartext] = useState<string>("");
   const [destroyAfterRead, setDestroyAfterRead] = useState<boolean>(true);
@@ -41,20 +120,13 @@ export default function Home() {
   const [createErrorMessage, setCreateErrorMessage] = useState<string>();
 
   const [file, setFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState<string | undefined>();
-  const [fileSize, setFileSize] = useState<string | undefined>();
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      setFile(event.target.files[0]);
-      setFileName(event.target.files[0].name);
-      setFileSize(filesize(event.target.files[0].size)); // This will return a human-readable string
-    }
-  };
 
   const key = useMemo(() => generateUserKey(), []);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+
+  const handleFileChange = (selectedFile: File | null) => {
+    setFile(selectedFile);
+  };
 
   const handleSubmit = async () => {
     if (cleartext.length == 0 && file == null) {
@@ -200,60 +272,7 @@ export default function Home() {
                   flex-grow: 1;
                 `}
               ></div>
-              <div className="inputArea">
-                <label htmlFor="file-input">Attach file</label>
-                <div
-                  css={css`
-                    position: relative;
-                    overflow: hidden;
-                    display: inline-block;
-                  `}
-                >
-                  <button
-                    type="button"
-                    css={css`
-                      font-size: 12px;
-                      padding: 2px 4px;
-                      background-color: ${colorMixins.selectBackground};
-                      color: ${colors.foreground};
-                      border: 1px solid ${colors.accent};
-                      border-radius: 4px;
-                      margin-bottom: 0px;
-                      margin-top: 0px;
-                      min-height: 23px;
-                      min-width: 80px;
-                      cursor: pointer;
-                      display: flex;
-                      align-items: center;
-                    `}
-                  >
-                    <AttachFile
-                      fontSize="small"
-                      css={css`
-                        font-size: 12px !important;
-                      `}
-                    />
-                    <span>
-                      {fileName ? fileName : "Choose"}
-                      {fileSize ? ` (${fileSize})` : ""}
-                    </span>
-                  </button>
-                  <input
-                    type="file"
-                    id="file-input"
-                    onChange={handleFileChange}
-                    ref={fileInputRef}
-                    css={css`
-                      font-size: 100px;
-                      position: absolute;
-                      left: 0;
-                      top: 0;
-                      opacity: 0;
-                      cursor: pointer;
-                    `}
-                  />
-                </div>
-              </div>
+              <FileInput onFileChange={handleFileChange} />
               <div className="inputArea">
                 <label htmlFor="expires-after">Expires after</label>
                 <select
