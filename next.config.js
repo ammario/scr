@@ -8,6 +8,8 @@ const nextConfig = {
   compiler: {
     emotion: true,
   },
+  output: "export",
+  distDir: "server/dist",
 };
 
 module.exports = nextConfig;
