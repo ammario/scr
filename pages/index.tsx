@@ -85,8 +85,8 @@ function FileInput({ onFileChange }: FileInputProps) {
           transition: background-color 0.3s ease;
           background: linear-gradient(
             135deg,
-            ${colors.accent}10,
-            ${colors.accent}20
+            ${colors.accent}07,
+            ${colors.accent}07
           );
 
           display: flex;
