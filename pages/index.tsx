@@ -113,9 +113,7 @@ function FileInput({ onFileChange }: FileInputProps) {
             color: ${colors.foregroundDark};
           `}
         >
-          {fileName
-            ? `${fileName} (${fileSize})`
-            : "Click or drag file to upload (optional)"}
+          {fileName ? `${fileName} (${fileSize})` : "Upload a file (optional)"}
         </p>
       </div>
       <input
