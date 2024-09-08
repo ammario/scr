@@ -34,7 +34,7 @@ const config: PlaywrightTestConfig = {
       timeout: 60000,
     },
     {
-      command: "bun run start",
+      command: "bun run dev",
       port: 3010,
       env: {
         PORT: "3010",
