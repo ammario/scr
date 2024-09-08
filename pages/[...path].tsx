@@ -94,7 +94,6 @@ const ViewFile = ({
       className="view-file"
       data-testid="view-file"
       css={css`
-        margin-top: 10px;
         padding: 10px;
         background-color: ${colorMixins.selectBackground};
         border: 1px solid ${colors.accent};
