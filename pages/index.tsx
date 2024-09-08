@@ -109,7 +109,7 @@ function FileInput({ onFileChange }: FileInputProps) {
         />
         <p
           css={css`
-            font-size: 16px;
+            font-size: 14px;
             color: ${colors.foregroundDark};
           `}
         >
