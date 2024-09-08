@@ -35,77 +35,99 @@ interface FileInputProps {
   onFileChange: (file: File | null) => void;
 }
 
+const maxFileSize = 1e8;
+
+// maxUploadDuration returns the maximum duration in hours for a file upload based on its size.
+const maxUploadDuration = (size: number): number => {
+  const minDuration = 1; // 1 hour
+  const maxDuration = 30 * 24; // 30 days in hours
+
+  // Inverse linear interpolation
+  const duration =
+    maxDuration - (size / maxFileSize) * (maxDuration - minDuration);
+
+  // Clamp the result between minDuration and maxDuration
+  return Math.min(Math.max(duration, minDuration), maxDuration);
+};
+
 function FileInput({ onFileChange }: FileInputProps) {
-  const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | undefined>();
   const [fileSize, setFileSize] = useState<string | undefined>();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      const selectedFile = event.target.files[0];
-      setFile(selectedFile);
-      setFileName(selectedFile.name);
-      setFileSize(filesize(selectedFile.size));
-      onFileChange(selectedFile);
+    if (!event.target.files || event.target.files.length == 0) {
+      return;
     }
+    const selectedFile = event.target.files[0];
+    if (selectedFile.size > maxFileSize) {
+      alert(`File size exceeds the maximum limit of ${filesize(maxFileSize)}`);
+      return;
+    }
+    setFileName(selectedFile.name);
+    setFileSize(filesize(selectedFile.size));
+    onFileChange(selectedFile);
   };
 
   return (
-    <div className="inputArea">
-      <label htmlFor="file-input">Attach file</label>
+    <div
+      css={css`
+        width: 100%;
+      `}
+    >
       <div
         css={css`
-          position: relative;
-          overflow: hidden;
-          display: inline-block;
-        `}
-      >
-        <button
-          type="button"
-          css={css`
-            font-size: 12px;
-            padding: 2px 4px;
+          border: 2px dashed ${colors.accent};
+          border-radius: 8px;
+          padding: 4px;
+          text-align: center;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+          background: linear-gradient(
+            135deg,
+            ${colors.accent}10,
+            ${colors.accent}20
+          );
+
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          gap: 8px;
+          justify-content: center;
+
+          &:hover {
             background-color: ${colorMixins.selectBackground};
-            color: ${colors.foreground};
-            border: 1px solid ${colors.accent};
-            border-radius: 4px;
-            margin-bottom: 0px;
-            margin-top: 0px;
-            min-height: 23px;
-            min-width: 80px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-          `}
-        >
-          <AttachFile
-            fontSize="small"
-            css={css`
-              font-size: 12px !important;
-            `}
-          />
-          <span>
-            {fileName ? fileName : "Choose"}
-            {fileSize ? ` (${fileSize})` : ""}
-          </span>
-        </button>
-        <input
-          type="file"
-          id="file-input"
-          data-testid="file-input"
-          onChange={handleFileChange}
-          ref={fileInputRef}
+          }
+        `}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <AttachFile
           css={css`
-            font-size: 100px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            cursor: pointer;
+            font-size: 24px !important;
+            color: ${colors.accent};
           `}
         />
+        <p
+          css={css`
+            font-size: 16px;
+            color: ${colors.foregroundDark};
+          `}
+        >
+          {fileName
+            ? `${fileName} (${fileSize})`
+            : "Click or drag file to upload (optional)"}
+        </p>
       </div>
+      <input
+        type="file"
+        id="file-input"
+        data-testid="file-input"
+        onChange={handleFileChange}
+        ref={fileInputRef}
+        css={css`
+          display: none;
+        `}
+      />
     </div>
   );
 }
@@ -120,12 +142,20 @@ export default function Home() {
   const [createErrorMessage, setCreateErrorMessage] = useState<string>();
 
   const [file, setFile] = useState<File | null>(null);
+  const [maxAllowedDuration, setMaxAllowedDuration] = useState<number>(24 * 30); // Default to 30 days
 
   const key = useMemo(() => generateUserKey(), []);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   const handleFileChange = (selectedFile: File | null) => {
     setFile(selectedFile);
+    if (selectedFile) {
+      const maxDuration = Math.floor(maxUploadDuration(selectedFile.size));
+      setMaxAllowedDuration(maxDuration);
+      setExpiresAfterHours(Math.min(expiresAfterHours, maxDuration));
+    } else {
+      setMaxAllowedDuration(24 * 30); // Reset to 30 days if no file is selected
+    }
   };
 
   const handleSubmit = async () => {
@@ -238,6 +268,8 @@ export default function Home() {
                 }
               `}
             />
+
+            <FileInput onFileChange={handleFileChange} />
             <div
               css={css`
                 font-size: 12px;
@@ -272,7 +304,6 @@ export default function Home() {
                   flex-grow: 1;
                 `}
               ></div>
-              <FileInput onFileChange={handleFileChange} />
               <div className="inputArea">
                 <label htmlFor="expires-after">Expires after</label>
                 <select
@@ -280,12 +311,19 @@ export default function Home() {
                   value={expiresAfterHours}
                   onChange={(e) => setExpiresAfterHours(Number(e.target.value))}
                 >
-                  <option value={1}>1 hour</option>
-                  <option value={8}>8 hours</option>
-                  <option value={24}>24 hours</option>
-                  <option value={24 * 3}>3 days</option>
-                  <option value={24 * 7}>7 days</option>
-                  <option value={24 * 30}>30 days</option>
+                  {[1, 8, 24, 24 * 3, 24 * 7, 24 * 30]
+                    .filter((hours) => hours <= maxAllowedDuration)
+                    .map((hours) => (
+                      <option key={hours} value={hours}>
+                        {hours === 1
+                          ? "1 hour"
+                          : hours <= 24
+                          ? `${hours} hours`
+                          : hours <= 24 * 30
+                          ? `${hours / 24} days`
+                          : "30 days"}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div className="inputArea">

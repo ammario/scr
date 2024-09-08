@@ -87,10 +87,6 @@ const ViewFile = ({
     // Clean up
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
-
-    alert(
-      "Failed to decrypt file contents. The decryption key might be incorrect."
-    );
   };
 
   return (
