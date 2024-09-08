@@ -312,7 +312,7 @@ export default function ViewNote() {
                     This note
                     <span
                       css={css`
-                        color: ${colors.warning};
+                        font-weight: bold;
                       `}
                     >
                       {" "}
