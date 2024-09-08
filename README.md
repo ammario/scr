@@ -2,7 +2,7 @@
 
 View the service at [s.cr](https://s.cr).
 
-View the FAQ at [s.cr/faq](https://s.cr/faq).
+View the about at [s.cr/faq](https://s.cr/about).
 
 ## About
 
