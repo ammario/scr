@@ -2,7 +2,7 @@
 
 build-frontend:
 	bun i
-	bun run next build
+	PROD_BUILD=true bun run next build
 
 build-go: build-frontend
 	GOOS=linux GOARCH=amd64 go build -o bin/scr ./cmd/scr

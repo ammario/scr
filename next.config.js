@@ -8,8 +8,11 @@ const nextConfig = {
   compiler: {
     emotion: true,
   },
-  output: "export",
   distDir: "server/dist",
 };
+
+if (process.env.PROD_BUILD === "true") {
+  nextConfig.output = "export";
+}
 
 module.exports = nextConfig;

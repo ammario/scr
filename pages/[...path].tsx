@@ -15,6 +15,8 @@ import { borderRadius, colorMixins, colors } from "../util/theme";
 import { FlexColumn } from "../components/Flex";
 import { filesize } from "filesize";
 import ProgressBar from "../components/ProgressBar";
+import dynamic from "next/dynamic";
+
 var duration = require("dayjs/plugin/duration");
 var relativeTime = require("dayjs/plugin/relativeTime");
 
@@ -27,7 +29,11 @@ const estimateBase64Length = (base64Length: number) => {
   return (base64Length * 6) / 8;
 };
 
-const ViewFile = ({
+const DynamicDisplayFile = dynamic(() => import("../components/DisplayFile"), {
+  ssr: false,
+});
+
+const FileCard = ({
   file: note,
   decryptionKey,
 }: {
@@ -99,9 +105,8 @@ const ViewFile = ({
         border: 1px solid ${colors.accent};
         border-radius: ${borderRadius};
         display: flex;
-        flex-direction: row;
-        align-items: center;
-        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: flex-start;
         gap: 10px;
       `}
     >
@@ -158,6 +163,9 @@ const ViewFile = ({
           <div>Decrypting...</div>
         )}
       </div>
+      {decryptedContents && (
+        <DynamicDisplayFile file={decryptedContents} name={note.file_name} />
+      )}
     </div>
   );
 };
@@ -300,7 +308,7 @@ export default function ViewNote() {
                   {note.cleartext}
                 </div>
               )}
-              {note.file_name && <ViewFile file={note} decryptionKey={key} />}
+              {note.file_name && <FileCard file={note} decryptionKey={key} />}
               <div
                 css={css`
                   gap: 15px;

@@ -318,10 +318,10 @@ export default function Home() {
                         {hours === 1
                           ? "1 hour"
                           : hours <= 24
-                          ? `${hours} hours`
-                          : hours <= 24 * 30
-                          ? `${hours / 24} days`
-                          : "30 days"}
+                            ? `${hours} hours`
+                            : hours <= 24 * 30
+                              ? `${hours / 24} days`
+                              : "30 days"}
                       </option>
                     ))}
                 </select>
@@ -379,12 +379,12 @@ export default function Home() {
               color: var(--foreground);
               padding: 10px;
               resize: none;
-              font-weight: bold;
               border: 2px dotted var(--accent);
               word-break: break-all;
               overflow-wrap: break-word;
               text-align: left;
-              font-family: monospace;
+              font-weight: normal;
+              font-size: 14px;
             `}
           ></textarea>
           <div
