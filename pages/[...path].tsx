@@ -1,8 +1,10 @@
 import { css } from "@emotion/react";
 import { CopyAll, Download, Reply, Visibility } from "@mui/icons-material";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { apiNote } from ".";
 import { Button } from "../components/Button";
 import { ErrorBox } from "../components/ErrorBox";
@@ -22,6 +24,8 @@ var relativeTime = require("dayjs/plugin/relativeTime");
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const estimateBase64Length = (base64Length: number) => {
   // Each base64 character is 6 bits, so we need to multiply by 6/8 to get the
@@ -51,6 +55,23 @@ const FileCard = ({
   const [decryptionError, setDecryptionError] = useState<string | undefined>(
     undefined
   );
+
+  const [decryptedFileName, setDecryptedFileName] = useState<string>(
+    note.file_name
+  );
+
+  useMemo(() => {
+    try {
+      const dec = decryptStringPayload(note.file_name, decryptionKey);
+      if (dec.length > 0) {
+        setDecryptedFileName(dec);
+      }
+    } catch (error) {
+      // If decryption fails, its probably a legacy note without an encrypted
+      // file name, do nothing.
+      // I can remove this in on Oct 7th 2024.
+    }
+  }, [note.file_name, decryptionKey]);
 
   useEffect(() => {
     const decryptFile = async () => {
@@ -113,11 +134,19 @@ const FileCard = ({
       <div>
         <span
           css={css`
-            margin-right: 10px;
+            margin-right: 4px;
           `}
         >
-          {note.file_name} (
-          {filesize(estimateBase64Length(note.file_contents.length))})
+          {decryptedFileName}
+        </span>
+        <span
+          css={css`
+            font-size: 0.8em;
+            font-family: var(--font-mono);
+            color: ${colors.foregroundDark};
+          `}
+        >
+          ({filesize(estimateBase64Length(note.file_contents.length))})
         </span>
         {decryptionError && <ErrorBox>{decryptionError}</ErrorBox>}
 
@@ -126,6 +155,8 @@ const FileCard = ({
             css={css`
               font-size: 10px;
               color: ${colors.foregroundDark};
+              font-family: var(--font-mono);
+              word-break: break-all;
             `}
           >
             sha256: {decryptedChecksum}
@@ -141,6 +172,7 @@ const FileCard = ({
               handleDownload(decryptedContents);
             }}
             css={css`
+              font-size: 15px;
               color: ${colors.accent};
               text-decoration: none;
               display: flex;
@@ -164,7 +196,7 @@ const FileCard = ({
         )}
       </div>
       {decryptedContents && (
-        <DynamicDisplayFile file={decryptedContents} name={note.file_name} />
+        <DynamicDisplayFile file={decryptedContents} name={decryptedFileName} />
       )}
     </div>
   );
@@ -200,6 +232,7 @@ export default function ViewNote() {
       xhr.onprogress = (event) => {
         if (event.lengthComputable) {
           const percentComplete = event.loaded / event.total;
+          console.log("percentComplete", percentComplete);
           setDownloadProgress(percentComplete);
         }
       };
@@ -275,15 +308,32 @@ export default function ViewNote() {
                     else before exiting the tab!
                   </>
                 ) : (
-                  <>
-                    This note expires in
-                    {" " +
-                      dayjs
+                  <span>
+                    This note
+                    <span
+                      css={css`
+                        color: ${colors.warning};
+                      `}
+                    >
+                      {" "}
+                      expires in about{" "}
+                      {dayjs
                         // @ts-ignore
                         .duration(dayjs(note.expires_at).diff(dayjs()))
                         .humanize()}
+                    </span>
+                    <span
+                      css={css`
+                        font-size: 0.9em;
+                        color: ${colors.foregroundDark};
+                      `}
+                    >
+                      {` (on ${dayjs(note.expires_at).format(
+                        "MMMM D, YYYY"
+                      )} at ${dayjs(note.expires_at).format("h:mm A")})`}
+                    </span>
                     .
-                  </>
+                  </span>
                 )}
               </p>
 

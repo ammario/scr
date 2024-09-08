@@ -4,7 +4,6 @@ import Image from "next/image";
 
 const DisplayFile = ({ file, name }: { file: Uint8Array; name: string }) => {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
-
   useEffect(() => {
     const processFile = async () => {
       const blob = new Blob([file]);

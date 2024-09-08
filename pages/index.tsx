@@ -179,7 +179,7 @@ export default function Home() {
       const buf = await file.arrayBuffer();
       const fileEncrypted = await encryptBuffer(new Uint8Array(buf), key);
       formData.append("file_contents", new Blob([fileEncrypted]), file.name);
-      formData.append("file_name", file.name);
+      formData.append("file_name", encryptStringPayload(file.name, key));
     }
 
     const xhr = new XMLHttpRequest();
@@ -237,7 +237,7 @@ export default function Home() {
             handleSubmit();
           }}
           onKeyDown={(e) => {
-            if (e.ctrlKey && e.key === "Enter") {
+            if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
               handleSubmit();
             }
           }}
@@ -311,7 +311,8 @@ export default function Home() {
                   value={expiresAfterHours}
                   onChange={(e) => setExpiresAfterHours(Number(e.target.value))}
                 >
-                  {[1, 8, 24, 24 * 3, 24 * 7, 24 * 30]
+                  {[1, 8, 24, 24 * 3, 24 * 7, maxAllowedDuration]
+                    .sort((a, b) => a - b)
                     .filter((hours) => hours <= maxAllowedDuration)
                     .map((hours) => (
                       <option key={hours} value={hours}>
@@ -320,7 +321,7 @@ export default function Home() {
                           : hours <= 24
                             ? `${hours} hours`
                             : hours <= 24 * 30
-                              ? `${hours / 24} days`
+                              ? `${Math.round(hours / 24)} days`
                               : "30 days"}
                       </option>
                     ))}

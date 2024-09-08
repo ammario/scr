@@ -30,6 +30,8 @@ const globalStyles = css`
     --warning: ${colors.warning};
     --error: ${colors.error};
     --comment: ${colors.comment};
+
+    --font-mono: "Berkeley Mono", monospace;
   }
 
   /* Global Styles */
@@ -199,7 +201,7 @@ const Frontmatter = () => {
               margin-bottom: 0px;
             `}
           >
-            Send encrypted, self-destructing notes.
+            Send end-to-end encrypted, self-destructing notes.
           </p>
           <div
             css={css`
