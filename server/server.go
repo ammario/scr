@@ -29,7 +29,8 @@ type Server struct {
 //go:embed all:dist/**
 var staticFS embed.FS
 
-const maxNoteSize = 100 << 20
+// buffer for base64
+const maxNoteSize = (250 << 20)
 
 func (s *Server) Handler() http.Handler {
 	subfs, err := fs.Sub(staticFS, "dist")
