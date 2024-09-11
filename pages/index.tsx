@@ -35,7 +35,7 @@ interface FileInputProps {
   onFileChange: (file: File | null) => void;
 }
 
-const maxFileSize = 1e8;
+const maxFileSize = 2e8;
 
 // maxUploadDuration returns the maximum duration in hours for a file upload based on its size.
 const maxUploadDuration = (size: number): number => {
