@@ -212,7 +212,12 @@ const Frontmatter = () => {
               margin-top: 8px;
             `}
           >
-            <a href="/about">About</a>
+            <a
+              target="_blank"
+              href="https://github.com/ammario/scr?tab=readme-ov-file#scr"
+            >
+              About
+            </a>
             <a target="_blank" href="https://github.com/ammario/scr">
               View Source
             </a>
