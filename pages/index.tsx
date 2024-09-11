@@ -39,15 +39,18 @@ const maxFileSize = 1e8;
 
 // maxUploadDuration returns the maximum duration in hours for a file upload based on its size.
 const maxUploadDuration = (size: number): number => {
-  const minDuration = 1; // 1 hour
-  const maxDuration = 30 * 24; // 30 days in hours
+  const minDuration = 1; // 1 day
+  const maxDuration = 30; // 30 days
 
-  // Inverse linear interpolation
-  const duration =
-    maxDuration - (size / maxFileSize) * (maxDuration - minDuration);
+  if (size === 0) {
+    return maxDuration * 24;
+  }
+
+  // Calculate the duration based on the inverse relationship
+  const duration = Math.floor(maxFileSize / size);
 
   // Clamp the result between minDuration and maxDuration
-  return Math.min(Math.max(duration, minDuration), maxDuration);
+  return Math.min(Math.max(duration, minDuration), maxDuration) * 24;
 };
 
 function FileInput({ onFileChange }: FileInputProps) {
@@ -140,7 +143,9 @@ export default function Home() {
   const [createErrorMessage, setCreateErrorMessage] = useState<string>();
 
   const [file, setFile] = useState<File | null>(null);
-  const [maxAllowedDuration, setMaxAllowedDuration] = useState<number>(24 * 30); // Default to 30 days
+  const [maxAllowedDuration, setMaxAllowedDuration] = useState<number>(
+    maxUploadDuration(0)
+  ); // Default to 30 days
 
   const key = useMemo(() => generateUserKey(), []);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -148,11 +153,11 @@ export default function Home() {
   const handleFileChange = (selectedFile: File | null) => {
     setFile(selectedFile);
     if (selectedFile) {
-      const maxDuration = Math.floor(maxUploadDuration(selectedFile.size));
+      const maxDuration = maxUploadDuration(selectedFile.size);
       setMaxAllowedDuration(maxDuration);
       setExpiresAfterHours(Math.min(expiresAfterHours, maxDuration));
     } else {
-      setMaxAllowedDuration(24 * 30); // Reset to 30 days if no file is selected
+      setMaxAllowedDuration(maxUploadDuration(0)); // Reset to 30 days if no file is selected
     }
   };
 
@@ -310,10 +315,17 @@ export default function Home() {
                   onChange={(e) => setExpiresAfterHours(Number(e.target.value))}
                 >
                   {[1, 8, 24, 24 * 3, 24 * 7, maxAllowedDuration]
+                    .filter(
+                      (hours, index, self) =>
+                        hours <= maxAllowedDuration &&
+                        // Remove duplicates
+                        self.indexOf(hours) === index
+                    )
                     .sort((a, b) => a - b)
-                    .filter((hours) => hours <= maxAllowedDuration)
-                    .map((hours) => (
-                      <option key={hours} value={hours}>
+                    .map((hours, index) => (
+                      // key to index to avoid duplicate hours and properly
+                      // sort them
+                      <option key={"hours-" + index} value={hours}>
                         {hours === 1
                           ? "1 hour"
                           : hours <= 24
