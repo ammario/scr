@@ -35,7 +35,8 @@ interface FileInputProps {
   onFileChange: (file: File | null) => void;
 }
 
-const maxFileSize = 2e8;
+// maxFileSize is 90MB because cloudflare has a 100MB free limit.
+const maxFileSize = 90e6;
 
 // maxUploadDuration returns the maximum duration in hours for a file upload based on its size.
 const maxUploadDuration = (size: number): number => {
