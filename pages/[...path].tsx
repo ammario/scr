@@ -18,6 +18,7 @@ import { FlexColumn } from "../components/Flex";
 import { filesize } from "filesize";
 import ProgressBar from "../components/ProgressBar";
 import dynamic from "next/dynamic";
+import Head from "next/head";
 
 var duration = require("dayjs/plugin/duration");
 var relativeTime = require("dayjs/plugin/relativeTime");
@@ -290,165 +291,170 @@ export default function ViewNote() {
   }, [objectID]);
 
   return (
-    <div>
-      {err && <ErrorBox>{err}</ErrorBox>}
-      {downloadProgress < 1 && <ProgressBar progress={downloadProgress} />}
-      {note && err === undefined && (
-        <FlexColumn
-          css={css`
-            width: 100%; // Add this line
-          `}
-        >
-          {note.cleartext !== undefined ? (
-            <>
-              <p>
-                {note.destroy_after_read ? (
-                  <>
-                    <b>This note will only be shown once</b>. Save it somewhere
-                    else before exiting the tab!
-                  </>
-                ) : (
-                  <span>
-                    This note
-                    <span
-                      css={css`
-                        font-weight: bold;
-                      `}
-                    >
-                      {" "}
-                      expires in about{" "}
-                      {dayjs
-                        // @ts-ignore
-                        .duration(dayjs(note.expires_at).diff(dayjs()))
-                        .humanize()}
+    <>
+      <Head>
+        <title>a secure note</title>
+      </Head>
+      <div>
+        {err && <ErrorBox>{err}</ErrorBox>}
+        {downloadProgress < 1 && <ProgressBar progress={downloadProgress} />}
+        {note && err === undefined && (
+          <FlexColumn
+            css={css`
+              width: 100%; // Add this line
+            `}
+          >
+            {note.cleartext !== undefined ? (
+              <>
+                <p>
+                  {note.destroy_after_read ? (
+                    <>
+                      <b>This note will only be shown once</b>. Save it
+                      somewhere else before exiting the tab!
+                    </>
+                  ) : (
+                    <span>
+                      This note
+                      <span
+                        css={css`
+                          font-weight: bold;
+                        `}
+                      >
+                        {" "}
+                        expires in about{" "}
+                        {dayjs
+                          // @ts-ignore
+                          .duration(dayjs(note.expires_at).diff(dayjs()))
+                          .humanize()}
+                      </span>
+                      <span
+                        css={css`
+                          font-size: 0.9em;
+                          color: ${colors.foregroundDark};
+                        `}
+                      >
+                        {` (on ${dayjs(note.expires_at).format(
+                          "MMMM D, YYYY"
+                        )} at ${dayjs(note.expires_at).format("h:mm A")})`}
+                      </span>
+                      .
                     </span>
-                    <span
-                      css={css`
-                        font-size: 0.9em;
-                        color: ${colors.foregroundDark};
-                      `}
-                    >
-                      {` (on ${dayjs(note.expires_at).format(
-                        "MMMM D, YYYY"
-                      )} at ${dayjs(note.expires_at).format("h:mm A")})`}
-                    </span>
-                    .
-                  </span>
-                )}
-              </p>
+                  )}
+                </p>
 
-              {note.cleartext && (
-                <div
-                  className="view-box"
-                  css={css`
-                    background-color: ${colorMixins.textareaBackground};
-                    color: var(--foreground);
-                    padding: 10px;
-                    font-family: "Berkeley Mono", monospace;
-                    border: 2px dashed var(--accent);
-                    border-radius: ${borderRadius};
-                    white-space: pre-wrap;
-                    word-break: break-word;
-                    box-sizing: border-box;
-                    width: 100%;
-                    max-width: 100%; // Add this line
-                    overflow-x: auto; // Add this line
-                  `}
-                >
-                  {note.cleartext}
-                </div>
-              )}
-              {note.file_name && <FileCard file={note} decryptionKey={key} />}
-              <div
-                css={css`
-                  gap: 15px;
-                  display: flex;
-                  flex-wrap: wrap;
-                  padding-top: 0.25em;
-                  & button {
-                    min-width: 100px;
-                  }
-                `}
-              >
                 {note.cleartext && (
-                  <Button
-                    onClick={() => {
-                      navigator.clipboard.writeText(note.cleartext!);
-                      setCopySuccess(true);
-                    }}
+                  <div
+                    className="view-box"
+                    css={css`
+                      background-color: ${colorMixins.textareaBackground};
+                      color: var(--foreground);
+                      padding: 10px;
+                      font-family: "Berkeley Mono", monospace;
+                      border: 2px dashed var(--accent);
+                      border-radius: ${borderRadius};
+                      white-space: pre-wrap;
+                      word-break: break-word;
+                      box-sizing: border-box;
+                      width: 100%;
+                      max-width: 100%; // Add this line
+                      overflow-x: auto; // Add this line
+                    `}
                   >
-                    <CopyAll />
-                    Copy
-                  </Button>
-                )}
-                <Button
-                  css={css``}
-                  onClick={() => {
-                    router.push("/");
-                  }}
-                >
-                  <Reply />
-                  Reply
-                </Button>
-                {copySuccess && (
-                  <div className="success-box">
-                    Successfully copied note to clipboard.
+                    {note.cleartext}
                   </div>
                 )}
-              </div>
-            </>
-          ) : (
-            <div
-              css={css`
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                justify-content: center;
-              `}
-            >
-              <p>
-                This note will be permanently deleted once it's read. Are you
-                ready to proceed?
-              </p>
-              <button
+                {note.file_name && <FileCard file={note} decryptionKey={key} />}
+                <div
+                  css={css`
+                    gap: 15px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    padding-top: 0.25em;
+                    & button {
+                      min-width: 100px;
+                    }
+                  `}
+                >
+                  {note.cleartext && (
+                    <Button
+                      onClick={() => {
+                        navigator.clipboard.writeText(note.cleartext!);
+                        setCopySuccess(true);
+                      }}
+                    >
+                      <CopyAll />
+                      Copy
+                    </Button>
+                  )}
+                  <Button
+                    css={css``}
+                    onClick={() => {
+                      router.push("/");
+                    }}
+                  >
+                    <Reply />
+                    Reply
+                  </Button>
+                  {copySuccess && (
+                    <div className="success-box">
+                      Successfully copied note to clipboard.
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div
                 css={css`
-                  border: none;
-                  padding: 5px 5px;
-                  border-radius: 5px;
-                  width: 200px;
-                  cursor: pointer;
                   display: flex;
-                  align-items: center;
+                  flex-direction: column;
+                  align-items: flex-start;
                   justify-content: center;
-
-                  background-color: var(--warning);
-                  color: var(--background);
-                  margin-top: 8px;
-                  margin-bottom: 4px;
-
-                  :hover {
-                    background-color: var(--accent-light);
-                    color: var(--background);
-                  }
-
-                  svg {
-                    color: inherit;
-                    margin-right: 2px;
-                  }
                 `}
-                data-testid="read-note-button"
-                className="read-button"
-                onClick={() => {
-                  retrieveNote(false);
-                }}
               >
-                <Visibility />
-                Read Note
-              </button>
-            </div>
-          )}
-        </FlexColumn>
-      )}
-    </div>
+                <p>
+                  This note will be permanently deleted once it's read. Are you
+                  ready to proceed?
+                </p>
+                <button
+                  css={css`
+                    border: none;
+                    padding: 5px 5px;
+                    border-radius: 5px;
+                    width: 200px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    background-color: var(--warning);
+                    color: var(--background);
+                    margin-top: 8px;
+                    margin-bottom: 4px;
+
+                    :hover {
+                      background-color: var(--accent-light);
+                      color: var(--background);
+                    }
+
+                    svg {
+                      color: inherit;
+                      margin-right: 2px;
+                    }
+                  `}
+                  data-testid="read-note-button"
+                  className="read-button"
+                  onClick={() => {
+                    retrieveNote(false);
+                  }}
+                >
+                  <Visibility />
+                  Read Note
+                </button>
+              </div>
+            )}
+          </FlexColumn>
+        )}
+      </div>
+    </>
   );
 }
