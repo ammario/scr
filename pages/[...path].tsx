@@ -458,3 +458,8 @@ export default function ViewNote() {
     </>
   );
 }
+
+// Disable static generation - this page uses browser APIs and router
+export function getServerSideProps() {
+  return { props: {} };
+}

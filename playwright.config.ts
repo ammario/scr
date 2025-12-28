@@ -12,9 +12,9 @@ const config: PlaywrightTestConfig = {
 
   reporter: [["html", { open: "never" }]],
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3010",
     trace: "on-first-retry",
-    screenshot: "only-on-failure", // Options: 'on', 'off', 'only-on-failure'
+    screenshot: "only-on-failure",
   },
   projects: [
     {
@@ -24,26 +24,13 @@ const config: PlaywrightTestConfig = {
       },
     },
   ],
-  webServer: [
-    {
-      // killport is a hack to get around playwright's bizarre globalSetup
-      command: "killport 3011 && go run ./cmd/scr",
-      port: 3011,
-      env: { PORT: "3011" },
-      reuseExistingServer: true,
-      timeout: 60000,
-    },
-    {
-      command: "bun run dev",
-      port: 3010,
-      env: {
-        PORT: "3010",
-        API_URL: "http://localhost:3011",
-      },
-      reuseExistingServer: true,
-      timeout: 60000,
-    },
-  ],
+  webServer: {
+    command: "bun run dev",
+    port: 3010,
+    env: { PORT: "3010" },
+    reuseExistingServer: true,
+    timeout: 60000,
+  },
 };
 
 export default config;

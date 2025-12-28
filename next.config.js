@@ -8,11 +8,8 @@ const nextConfig = {
   compiler: {
     emotion: true,
   },
-  distDir: "server/dist",
+  // Use standalone output for Docker deployment
+  output: "standalone",
 };
-
-if (process.env.PROD_BUILD === "true") {
-  nextConfig.output = "export";
-}
 
 module.exports = nextConfig;

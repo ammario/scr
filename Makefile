@@ -1,27 +1,33 @@
-.PHONY: build-frontend
+.PHONY: build deploy fmt test
 
-build-frontend:
+install:
 	bun i
-	PROD_BUILD=true bun run next build
 
-build-go: build-frontend
-	GOOS=linux GOARCH=amd64 go build -o bin/scr ./cmd/scr
+build: install
+	bun run build
 
-deploy: build-go
+deploy: build
 	./deploy.sh
 
 fmt:
 	npm x prettier -- --write '**/*.{js,jsx,ts,tsx}' \
 		--ignore-path .gitignore
 
-.PHONY: test bun-test go-test playwright-test
-playwright-test:
+# Run all tests
+test: unit-test integration-test
+
+# Unit tests (no GCS required)
+unit-test:
+	bun run test util/
+
+# Integration tests (requires GCS credentials)
+integration-test:
+	bun run test
+
+# E2E tests with Playwright (requires running server)
+e2e-test:
 	bun x playwright test e2e
 
-bun-test:
-	bun test 
-
-go-test:
-	go test ./...
-
-test: bun-test go-test playwright-test
+# Dev server
+dev:
+	bun run dev

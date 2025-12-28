@@ -28,7 +28,8 @@ interface createdNote {
 }
 
 function createdNoteURL(o: createdNote): string {
-  return location.origin + "/" + o.id + "#" + o.key;
+  if (typeof window === "undefined") return "";
+  return window.location.origin + "/" + o.id + "#" + o.key;
 }
 
 interface FileInputProps {
@@ -432,4 +433,9 @@ export default function Home() {
       )}
     </FlexColumn>
   );
+}
+
+// Disable static generation - this page uses browser APIs
+export function getServerSideProps() {
+  return { props: {} };
 }

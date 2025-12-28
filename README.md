@@ -10,9 +10,61 @@ s.cr stores the encryption key within your URL fragment (the part after the #). 
 
 But, you can only trust this site as much as you trust these claims.
 
+## Development
+
+This is a full-stack Next.js application deployed to Google Cloud Run with GCS for storage.
+
+### Prerequisites
+
+- Node.js 20+
+- bun (for package management)
+- Google Cloud credentials with access to `scr-notes` bucket
+
+### Setup
+
+```bash
+# Install dependencies
+bun i
+
+# Run development server
+bun run dev
+
+# Run tests (requires GCS credentials)
+bun run test
+
+# Run only unit tests (no GCS required)
+make unit-test
+```
+
+### Deployment
+
+```bash
+# Build and deploy to Cloud Run
+make deploy
+```
+
+## Architecture
+
+- **Frontend**: Next.js with React, Emotion CSS
+- **Backend**: Next.js API routes
+- **Storage**: Google Cloud Storage (`scr-notes` bucket)
+- **Deployment**: Google Cloud Run (standalone Next.js)
+
+## Testing
+
+Tests use Vitest and React Testing Library. Integration tests connect to the real GCS backend.
+
+```bash
+# All tests
+bun run test
+
+# Unit tests only (crypto)
+make unit-test
+
+# E2E tests with Playwright
+make e2e-test
+```
+
 ## Contributing
 
-This repo is open source for security purposes. It's not very easy
-to set up and deploy on your own.
-
-Feel free to open up issues.
+This repo is open source for security purposes. Feel free to open up issues.
