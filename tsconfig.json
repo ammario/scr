@@ -1,5 +1,11 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
     // Enable latest features
     "lib": [
       "ESNext",
@@ -8,9 +14,7 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
-    // See https://emotion.sh/docs/typescript.
     "jsx": "preserve",
-    "jsxImportSource": "@emotion/react",
     "allowJs": true,
     // Bundler mode
     "moduleResolution": "node",
@@ -28,7 +32,10 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "types": ["bun-types"]
+    "types": [
+      "bun-types",
+      "node"
+    ]
   },
   "include": [
     "next-env.d.ts",

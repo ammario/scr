@@ -1,12 +1,28 @@
-import { css } from "@emotion/react";
 import { useState, useEffect } from "react";
-import Image from "next/image";
 
-const DisplayFile = ({ file, name }: { file: Uint8Array; name: string }) => {
+const DisplayFile = ({ blob, name }: { blob: Blob; name: string }) => {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  
+  const getFileExtension = (filename: string) => {
+    return filename.split(".").pop()?.toLowerCase();
+  };
+
+  const isImage = (extension: string | undefined) => {
+    const imageExtensions = [
+      "jpg",
+      "jpeg",
+      "png",
+      "gif",
+      "bmp",
+      "webp",
+      "svg",
+      "heic",
+    ];
+    return extension && imageExtensions.includes(extension);
+  };
+
   useEffect(() => {
     const processFile = async () => {
-      const blob = new Blob([file]);
       const extension = getFileExtension(name);
 
       if (extension === "heic") {
@@ -38,25 +54,7 @@ const DisplayFile = ({ file, name }: { file: Uint8Array; name: string }) => {
     return () => {
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [file, name]);
-
-  const getFileExtension = (filename: string) => {
-    return filename.split(".").pop()?.toLowerCase();
-  };
-
-  const isImage = (extension: string | undefined) => {
-    const imageExtensions = [
-      "jpg",
-      "jpeg",
-      "png",
-      "gif",
-      "bmp",
-      "webp",
-      "svg",
-      "heic",
-    ];
-    return extension && imageExtensions.includes(extension);
-  };
+  }, [blob, name]);
 
   const extension = getFileExtension(name);
 
@@ -65,18 +63,11 @@ const DisplayFile = ({ file, name }: { file: Uint8Array; name: string }) => {
   }
 
   return (
-    <div
-      css={css`
-        max-width: 100%;
-      `}
-    >
-      <Image
+    <div className="max-w-full">
+      <img
         src={objectUrl}
         alt={name}
-        width={300}
-        height={300}
-        layout="responsive"
-        objectFit="contain"
+        className="w-full h-auto object-contain"
       />
     </div>
   );

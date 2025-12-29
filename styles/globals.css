@@ -1,0 +1,111 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&display=swap");
+
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url(/BerkeleyMono-Regular.woff2);
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* CSS Variables for theming - dark aesthetic matching original */
+:root {
+  --background: hsl(0 0% 8%);
+  --foreground: hsl(0 0% 83%);
+  
+  --card: hsl(0 0% 10%);
+  --card-foreground: hsl(0 0% 83%);
+  
+  --popover: hsl(0 0% 12%);
+  --popover-foreground: hsl(0 0% 83%);
+  
+  --primary: hsl(207 85% 44%);
+  --primary-foreground: hsl(0 0% 100%);
+  
+  --secondary: hsl(210 50% 23%);
+  --secondary-foreground: hsl(0 0% 83%);
+  
+  --muted: hsl(0 0% 18%);
+  --muted-foreground: hsl(0 0% 55%);
+  
+  --accent: hsl(210 50% 23%);
+  --accent-foreground: hsl(0 0% 83%);
+  
+  --destructive: hsl(0 62% 47%);
+  --destructive-foreground: hsl(0 0% 100%);
+  
+  --success: hsl(136 70% 28%);
+  
+  --border: hsl(0 0% 22%);
+  --input: hsl(0 0% 16%);
+  --ring: hsl(207 85% 44%);
+  
+  --radius: 2px;
+}
+
+/* Theme configuration - maps CSS vars to Tailwind */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Berkeley Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+/* Base styles */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  textarea,
+  pre,
+  code {
+    font-family: var(--font-mono);
+  }
+}
+
+/* Custom animations */
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+@utility animate-indeterminate {
+  animation: indeterminate 1.5s infinite linear;
+}

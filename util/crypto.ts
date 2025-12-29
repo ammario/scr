@@ -1,16 +1,11 @@
-import { createHash, pbkdf2Sync } from "crypto";
 import CryptoJS from "crypto-js";
-import { webcrypto } from "crypto";
 
 function getRandomValues(array: Uint8Array): Uint8Array {
-  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
-    return crypto.getRandomValues(array);
-  }
-  return webcrypto.getRandomValues(array);
+  return crypto.getRandomValues(array);
 }
 
-// Use the global crypto object if available (browser), otherwise use webcrypto from Node.js
-const cryptoModule = typeof crypto !== "undefined" ? crypto : webcrypto;
+// Use the global crypto object (works in both browser and modern Node/Bun)
+const cryptoModule = globalThis.crypto;
 
 export const generateUserKey = (): string => {
   let result = "";
@@ -28,7 +23,13 @@ export const generateUserKey = (): string => {
 
 const expandKey = (key: string): string => {
   // this can never change, and must be deterministic
-  return pbkdf2Sync(key, "s.cr!", 128, 32, "sha512").toString();
+  // Using CryptoJS.PBKDF2 for browser compatibility
+  const derived = CryptoJS.PBKDF2(key, "s.cr!", {
+    keySize: 32 / 4, // 32 bytes = 8 words (CryptoJS uses 32-bit words)
+    iterations: 128,
+    hasher: CryptoJS.algo.SHA512,
+  });
+  return derived.toString();
 };
 
 export const encryptStringPayload = (payload: string, key: string): string => {
@@ -72,10 +73,10 @@ export async function encryptBuffer(
   const encrypted = await cryptoModule.subtle.encrypt(
     {
       name: "AES-GCM",
-      iv: iv,
+      iv: iv as BufferSource,
     },
-    cryptoKey as any,
-    payload
+    cryptoKey as CryptoKey,
+    payload as BufferSource
   );
 
   // Prepend the IV to the encrypted data
@@ -97,23 +98,25 @@ export async function decryptBuffer(
     await cryptoModule.subtle.decrypt(
       {
         name: "AES-GCM",
-        iv: new Uint8Array(iv),
+        iv: new Uint8Array(iv) as BufferSource,
       },
-      cryptoKey,
-      data
+      cryptoKey as CryptoKey,
+      data as BufferSource
     )
   );
 }
 
-// Add this new function
+// Calculate SHA-256 checksum using Web Crypto API
 export const calculateChecksum = async (
   blob: Blob | string
 ): Promise<string> => {
+  let data: ArrayBuffer;
   if (typeof blob === "string") {
-    return createHash("sha256").update(blob).digest("hex");
+    data = new TextEncoder().encode(blob).buffer as ArrayBuffer;
+  } else {
+    data = await blob.arrayBuffer();
   }
-  const arrayBuffer = await blob.arrayBuffer();
-  const hash = createHash("sha256");
-  hash.update(Buffer.from(arrayBuffer));
-  return hash.digest("hex");
+  const hashBuffer = await cryptoModule.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 };

@@ -1,0 +1,182 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&display=swap");
+
+@font-face {
+  font-family: "Berkeley Mono";
+  src: url(/BerkeleyMono-Regular.woff2);
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* CSS Variables for theming - dark/stark */
+:root {
+  /* Base colors - pure dark */
+  --background: #0a0a0a;
+  --foreground: #e0e0e0;
+  
+  /* Accent colors - high contrast */
+  --accent: #0066cc;
+  --accent-light: #66b3ff;
+  --accent-dark: #003d7a;
+  
+  /* Semantic colors */
+  --primary: #0088ff;
+  --primary-foreground: #ffffff;
+  --success: #00aa44;
+  --warning: #ffaa00;
+  --error: #ff3333;
+  --destructive: #cc0000;
+  --destructive-foreground: #ffffff;
+  
+  /* UI colors */
+  --card: #111111;
+  --card-foreground: #e0e0e0;
+  --popover: #141414;
+  --popover-foreground: #e0e0e0;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #666666;
+  
+  /* Form colors */
+  --border: #333333;
+  --input: #161616;
+  --ring: #0066cc;
+  
+  /* Sharp corners */
+  --radius: 0px;
+  --button-radius: 2px;
+}
+
+/* Theme configuration - maps CSS vars to Tailwind */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-accent-dark: var(--accent-dark);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
+  --radius-lg: var(--button-radius);
+  --radius-xl: var(--button-radius);
+  
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Berkeley Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+/* Base styles */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    color: var(--primary);
+  }
+  
+  p {
+    opacity: 0.8;
+    font-size: 14px;
+    margin-block-end: 0;
+    margin-block-start: 0;
+  }
+  
+  a {
+    color: var(--accent-light);
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  textarea {
+    background-color: var(--input);
+    color: var(--foreground);
+    border: 1px solid #444444;
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+  }
+  
+  textarea:focus {
+    border-color: var(--accent);
+    outline: none;
+  }
+  
+  /* Note content display box */
+  .view-box {
+    background-color: var(--input);
+    border: 1px solid var(--border);
+  }
+  
+  pre,
+  code {
+    font-family: var(--font-mono);
+  }
+  
+  label {
+    font-size: 12px;
+    margin-left: 2px;
+  }
+  
+  select {
+    background-color: var(--input);
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    padding: 2px;
+    border-radius: var(--button-radius);
+  }
+  
+  select:focus {
+    border-color: var(--accent);
+    outline: none;
+  }
+  
+  hr {
+    border: none;
+    height: 1px;
+    background-color: var(--border);
+  }
+}
+
+/* Custom animations */
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+@utility animate-indeterminate {
+  animation: indeterminate 1.5s infinite linear;
+}

@@ -14,8 +14,8 @@ test("Create and view a note", async ({ page }) => {
   // Fill in the note content
   await page.fill("textarea#secret-input", noteValue);
 
-  // Check the "Destroy after read" checkbox
-  await page.check("input#destroy-after-read");
+  // Check the "Destroy after read" checkbox (Radix checkbox)
+  await page.click("button#destroy-after-read");
 
   // Click the create button
   await page.click('button:has-text("Create")');
@@ -63,8 +63,7 @@ test("Create and view a note with a binary file attachment", async ({
   // Attach the file
   await page.setInputFiles('input[type="file"]', tempFilePath);
 
-  // Uncheck the "Destroy after read" checkbox
-  await page.uncheck("input#destroy-after-read");
+  // Ensure "Destroy after read" checkbox is unchecked (it's off by default)
 
   // Click the create button
   await page.click('button:has-text("Create")');

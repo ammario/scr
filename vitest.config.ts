@@ -9,7 +9,7 @@ export default defineConfig({
     setupFiles: ["./test/setup.ts"],
     globals: true,
     include: ["**/*.test.{ts,tsx}"],
-    exclude: ["node_modules", "e2e"],
+    exclude: ["node_modules", "**/e2e/**", "**/*.spec.ts"],
     testTimeout: 30000, // 30s for GCS operations
   },
   resolve: {
