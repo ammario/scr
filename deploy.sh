@@ -3,7 +3,7 @@ set -e
 
 IMAGE=gcr.io/scr-send/service:$(date +%s)
 echo "Building image: $IMAGE"
-docker build -t $IMAGE .
+docker build --platform linux/amd64 -t $IMAGE .
 echo "Pushing image..."
 docker push $IMAGE
 echo "Deploying to Cloud Run..."

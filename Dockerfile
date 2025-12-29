@@ -1,30 +1,28 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM oven/bun:1 AS builder
 WORKDIR /app
 
-# Install dependencies
+# Install all dependencies (need devDeps for build)
 COPY package.json bun.lockb ./
-RUN npm install
+RUN bun install --frozen-lockfile
 
-# Copy source
+# Copy source and build
 COPY . .
+RUN bun run build
 
-# Build Next.js (standalone mode)
-RUN npm run build
-
-# Production stage
-FROM node:20-alpine AS runner
+# Production stage - install only prod deps
+FROM oven/bun:1 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy only necessary files from builder
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
+# Copy package files and install prod deps only
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile --production
 
-EXPOSE 3000
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
+# Copy built assets and server source
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/server ./src/server
+COPY --from=builder /app/lib ./lib
 
-CMD ["node", "server.js"]
+CMD ["bun", "run", "src/server/index.ts"]

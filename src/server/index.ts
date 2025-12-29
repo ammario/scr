@@ -6,6 +6,9 @@ const app = new Hono();
 
 const MAX_EXPIRY_DAYS = 30;
 
+// Health check for Cloud Run
+app.get("/health", (c) => c.text("ok"));
+
 // API Routes
 app.post("/api/notes", async (c) => {
   try {
