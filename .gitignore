@@ -1,7 +1,7 @@
 node_modules
 out
 .next
-server/dist/
+dist/
 bin
 yarn-error.log
 test-results

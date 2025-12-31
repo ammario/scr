@@ -123,7 +123,37 @@ app.get("/api/notes/:id", async (c) => {
 app.use("/*", serveStatic({ root: "./dist" }));
 
 // SPA fallback - serve index.html for all non-API routes
-app.get("*", serveStatic({ path: "./dist/index.html" }));
+// For note URLs, serve modified HTML with appropriate title for link previews
+app.get("*", async (c) => {
+  const path = c.req.path;
+  const indexHtml = await Bun.file("./dist/index.html").text();
+  
+  // Check if this looks like a note URL (single path segment, alphanumeric)
+  const noteMatch = path.match(/^\/([a-zA-Z0-9]+)$/);
+  if (noteMatch) {
+    // Peek at the note to check if it's destructible
+    const noteId = noteMatch[1];
+    try {
+      const note = await getNote(noteId);
+      if (note) {
+        const title = note.destroy_after_read 
+          ? "s.cr - a destructible note" 
+          : "s.cr - a secure note";
+        const modifiedHtml = indexHtml
+          .replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+          .replace(
+            /<meta name="description"[^>]*>/,
+            `<meta name="description" content="You've received ${note.destroy_after_read ? 'a self-destructing' : 'an encrypted'} note." />`
+          );
+        return c.html(modifiedHtml);
+      }
+    } catch {
+      // Fall through to default
+    }
+  }
+  
+  return c.html(indexHtml);
+});
 
 export default {
   port: process.env.PORT || 3000,

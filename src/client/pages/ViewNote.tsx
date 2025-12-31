@@ -94,10 +94,7 @@ export default function ViewNote() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [noteId]);
 
-  // Set page title
-  useEffect(() => {
-    document.title = "a secure note";
-  }, []);
+
 
   return (
     <div className="space-y-4 w-full max-w-3xl">
