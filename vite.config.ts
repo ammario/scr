@@ -14,6 +14,7 @@ export default defineConfig({
   build: {
     outDir: "../../dist",
     emptyOutDir: true,
+    chunkSizeWarningLimit: 1500, // heic2any is ~1.35MB, only loaded for HEIC files
   },
   server: {
     port: 5174,
