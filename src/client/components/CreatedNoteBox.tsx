@@ -22,7 +22,7 @@ export default function CreatedNoteBox({ noteUrl }: CreatedNoteBoxProps) {
           value={noteUrl}
           className="flex-1 bg-transparent border border-success/40 rounded px-3 py-2 h-10 text-sm font-mono text-center select-all focus:outline-none focus:border-success"
         />
-        <CopyButton text={noteUrl} className="gap-2 h-10 sm:w-auto" />
+        <CopyButton text={noteUrl} className="gap-2 h-10 sm:w-auto" globalKeybind />
       </div>
     </div>
   );

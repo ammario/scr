@@ -21,10 +21,11 @@ app.post("/api/notes", async (c) => {
     const fileName = formData.get("file_name") as string | null;
     const fileBlob = formData.get("file_contents") as Blob | null;
 
-    // Validate expiry
+    // Validate expiry (add 1 hour buffer for clock skew / rounding)
     const expiresAtDate = new Date(expiresAt);
     const maxExpiry = new Date();
     maxExpiry.setDate(maxExpiry.getDate() + MAX_EXPIRY_DAYS);
+    maxExpiry.setHours(maxExpiry.getHours() + 1);
 
     if (expiresAtDate > maxExpiry) {
       return c.text("Note expires too far into the future", 400);

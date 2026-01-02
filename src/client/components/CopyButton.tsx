@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 export interface CopyButtonProps {
   text: string;
   className?: string;
+  /** When true, Cmd/Ctrl+C triggers copy if no text is selected */
+  globalKeybind?: boolean;
 }
 
-export default function CopyButton({ text, className }: CopyButtonProps) {
+export default function CopyButton({ text, className, globalKeybind }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(() => {
@@ -16,6 +18,8 @@ export default function CopyButton({ text, className }: CopyButtonProps) {
   }, [text]);
 
   useEffect(() => {
+    if (!globalKeybind) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "c") {
         const selection = window.getSelection();
@@ -28,7 +32,7 @@ export default function CopyButton({ text, className }: CopyButtonProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleCopy]);
+  }, [handleCopy, globalKeybind]);
 
   return (
     <Button
