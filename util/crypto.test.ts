@@ -51,9 +51,9 @@ async function encryptLegacyBuffer(
 }
 
 describe("Crypto Utils", () => {
-  test("generateUserKey returns a 256-bit base64url key", () => {
+  test("generateUserKey returns a 128-bit base64url key", () => {
     const key = generateUserKey();
-    expect(key).toHaveLength(43);
+    expect(key).toHaveLength(22);
     expect(key).toMatch(/^[A-Za-z0-9_-]+$/);
     expect(generateUserKey()).not.toBe(key);
   });
@@ -64,6 +64,14 @@ describe("Crypto Utils", () => {
     const encrypted = await encryptStringPayload(originalText, key);
     expect(encrypted).toMatch(/^scr:v2:/);
     await expect(decryptStringPayload(encrypted, key)).resolves.toBe(originalText);
+  });
+
+  test("v2 payloads retain compatibility with 256-bit fragment keys", async () => {
+    const key = "eJ7pTdglpx84MwvMq92SaYIIiYg4Y9a_VBO8BebIFMM";
+    const encrypted = await encryptStringPayload("existing v2 note", key);
+    await expect(decryptStringPayload(encrypted, key)).resolves.toBe(
+      "existing v2 note"
+    );
   });
 
   test("v2 strings reject ciphertext tampering", async () => {

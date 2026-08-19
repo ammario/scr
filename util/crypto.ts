@@ -5,7 +5,7 @@ const cryptoModule = globalThis.crypto;
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder("utf-8", { fatal: true });
 
-const USER_KEY_BYTES = 32;
+const USER_KEY_BYTES = 16;
 const GCM_IV_BYTES = 12;
 const STRING_V2_PREFIX = "scr:v2:";
 const BUFFER_V2_PREFIX = new Uint8Array([
