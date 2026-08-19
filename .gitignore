@@ -6,3 +6,4 @@ bin
 yarn-error.log
 test-results
 playwright-report
+tsconfig.tsbuildinfo

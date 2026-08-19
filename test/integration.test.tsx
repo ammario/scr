@@ -9,9 +9,7 @@
  * - The service account must have access to the scr-notes bucket
  */
 
-import { describe, it, expect, afterEach, beforeAll, vi } from "vitest";
-import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { describe, it, expect, afterEach, beforeAll } from "vitest";
 import {
   createTestNote,
   cleanupTestNotes,
@@ -29,7 +27,7 @@ import {
 
 // Check that GCS credentials are available
 beforeAll(() => {
-  if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  if (!process.env["GOOGLE_APPLICATION_CREDENTIALS"]) {
     console.warn(
       "GOOGLE_APPLICATION_CREDENTIALS not set - GCS tests will fail"
     );
@@ -118,14 +116,14 @@ describe("GCS Backend Integration", () => {
   });
 
   describe("Encryption Integration", () => {
-    it("should encrypt and decrypt string content correctly", () => {
+    it("should encrypt and decrypt string content correctly", async () => {
       const key = generateUserKey();
       const originalText = "Secret message for testing encryption!";
 
-      const encrypted = encryptStringPayload(originalText, key);
+      const encrypted = await encryptStringPayload(originalText, key);
       expect(encrypted).not.toBe(originalText);
 
-      const decrypted = decryptStringPayload(encrypted, key);
+      const decrypted = await decryptStringPayload(encrypted, key);
       expect(decrypted).toBe(originalText);
     });
 
@@ -146,16 +144,20 @@ describe("GCS Backend Integration", () => {
       const originalContent = "This is a secret note!";
 
       // Encrypt and store
-      const encryptedContent = encryptStringPayload(originalContent, key);
+      const encryptedContent = await encryptStringPayload(originalContent, key);
       const id = await createTestNote({
         contents: encryptedContent,
+        version: 2,
       });
 
       // Retrieve and decrypt
       const retrieved = await getNote(id);
       expect(retrieved).toBeDefined();
 
-      const decryptedContent = decryptStringPayload(retrieved!.contents, key);
+      const decryptedContent = await decryptStringPayload(
+        retrieved!.contents,
+        key
+      );
       expect(decryptedContent).toBe(originalContent);
     });
 
@@ -165,12 +167,17 @@ describe("GCS Backend Integration", () => {
 
       // Encrypt file
       const encryptedFile = await encryptBuffer(fileContent, key);
-      const encryptedFileName = encryptStringPayload("photo.jpg", key);
+      const encryptedFileName = await encryptStringPayload(
+        "photo.jpg",
+        key,
+        "filename"
+      );
 
       const id = await createTestNote({
-        contents: encryptStringPayload("Note with encrypted file", key),
+        contents: await encryptStringPayload("Note with encrypted file", key),
         file_name: encryptedFileName,
         file_contents: Buffer.from(encryptedFile).toString("base64"),
+        version: 2,
       });
 
       // Retrieve and decrypt
@@ -178,7 +185,11 @@ describe("GCS Backend Integration", () => {
       expect(retrieved).toBeDefined();
 
       // Decrypt file name
-      const decryptedFileName = decryptStringPayload(retrieved!.file_name!, key);
+      const decryptedFileName = await decryptStringPayload(
+        retrieved!.file_name!,
+        key,
+        "filename"
+      );
       expect(decryptedFileName).toBe("photo.jpg");
 
       // Decrypt file contents
@@ -190,16 +201,13 @@ describe("GCS Backend Integration", () => {
       expect(decryptedFile).toEqual(fileContent);
     });
 
-    it("should fail decryption with wrong key", () => {
+    it("should fail decryption with wrong key", async () => {
       const key1 = generateUserKey();
       const key2 = generateUserKey();
       const originalText = "Secret message";
 
-      const encrypted = encryptStringPayload(originalText, key1);
-
-      // Decrypting with wrong key should return empty or garbage
-      const decrypted = decryptStringPayload(encrypted, key2);
-      expect(decrypted).not.toBe(originalText);
+      const encrypted = await encryptStringPayload(originalText, key1);
+      await expect(decryptStringPayload(encrypted, key2)).rejects.toThrow();
     });
   });
 
@@ -236,12 +244,13 @@ describe("End-to-End Flow Simulation", () => {
     const key = generateUserKey();
     const secretMessage = "This is my secret password: hunter2";
 
-    const encryptedContent = encryptStringPayload(secretMessage, key);
+    const encryptedContent = await encryptStringPayload(secretMessage, key);
 
     const noteId = await createTestNote({
       contents: encryptedContent,
       destroy_after_read: true,
       expires_at: new Date(Date.now() + 86400000).toISOString(), // 24 hours
+      version: 2,
     });
 
     // Step 2: Construct shareable URL (simulating what the frontend would do)
@@ -255,7 +264,7 @@ describe("End-to-End Flow Simulation", () => {
     expect(retrieved?.destroy_after_read).toBe(true);
 
     // Step 4: Decrypt content (simulating recipient's browser)
-    const decrypted = decryptStringPayload(retrieved!.contents, key);
+    const decrypted = await decryptStringPayload(retrieved!.contents, key);
     expect(decrypted).toBe(secretMessage);
 
     // Step 5: Verify destroy_after_read flag is set
@@ -274,12 +283,17 @@ describe("End-to-End Flow Simulation", () => {
     }
 
     const encryptedFile = await encryptBuffer(fileData, key);
-    const encryptedFileName = encryptStringPayload("large-file.bin", key);
+    const encryptedFileName = await encryptStringPayload(
+      "large-file.bin",
+      key,
+      "filename"
+    );
 
     const noteId = await createTestNote({
-      contents: encryptStringPayload(noteText, key),
+      contents: await encryptStringPayload(noteText, key),
       file_name: encryptedFileName,
       file_contents: Buffer.from(encryptedFile).toString("base64"),
+      version: 2,
     });
 
     // Retrieve and verify
@@ -287,10 +301,14 @@ describe("End-to-End Flow Simulation", () => {
     expect(retrieved).toBeDefined();
 
     // Decrypt everything
-    const decryptedText = decryptStringPayload(retrieved!.contents, key);
+    const decryptedText = await decryptStringPayload(retrieved!.contents, key);
     expect(decryptedText).toBe(noteText);
 
-    const decryptedFileName = decryptStringPayload(retrieved!.file_name!, key);
+    const decryptedFileName = await decryptStringPayload(
+      retrieved!.file_name!,
+      key,
+      "filename"
+    );
     expect(decryptedFileName).toBe("large-file.bin");
 
     const retrievedFileBytes = Buffer.from(retrieved!.file_contents!, "base64");

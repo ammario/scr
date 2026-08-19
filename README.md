@@ -6,7 +6,7 @@ I made it for sharing passwords, secret keys, and messages that I may not want t
 
 ## Security
 
-s.cr stores the encryption key within your URL fragment (the part after the #). This key is never sent to the server, so the site operators have no way of decrypting the content. The fragment-key has 60 bits of entropy and we expand it through 128 rounds of pbkdf2 before passing into AES-256.
+s.cr stores the encryption key within your URL fragment (the part after the #). This key is never sent to the server, so the site operators have no way of decrypting the content. New notes use a 256-bit key generated with the browser's cryptographically secure random number generator. HKDF-SHA-256 derives separate keys for note text, filenames, and files, which are encrypted with AES-256-GCM. The client retains read-only compatibility with the original v1 encryption format so existing links continue to work.
 
 But, you can only trust this site as much as you trust these claims.
 

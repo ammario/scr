@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Base64 } from "js-base64";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -21,23 +21,45 @@ export default function EncryptedFileCard({
     undefined
   );
 
-  const decryptedFileName = useMemo(() => {
-    if (!note.file_name) return "";
-    try {
-      const dec = decryptStringPayload(note.file_name, decryptionKey);
-      if (dec.length > 0) return dec;
-    } catch {
-      // legacy filename or incorrect key
-    }
-    return note.file_name ?? "";
+  const [decryptedFileName, setDecryptedFileName] = useState("");
+
+  useEffect(() => {
+    if (!note.file_name) return;
+    let cancelled = false;
+    const decryptFileName = async () => {
+      try {
+        const decrypted = await decryptStringPayload(
+          note.file_name!,
+          decryptionKey,
+          "filename"
+        );
+        if (!cancelled) setDecryptedFileName(decrypted || note.file_name!);
+      } catch {
+        if (cancelled) return;
+        if (note.file_name!.startsWith("scr:v2:")) {
+          setDecryptionError(
+            "Failed to decrypt the filename. The note might have been modified."
+          );
+        } else {
+          // Some legacy notes stored an unencrypted filename.
+          setDecryptedFileName(note.file_name!);
+        }
+      }
+    };
+
+    decryptFileName();
+    return () => {
+      cancelled = true;
+    };
   }, [note.file_name, decryptionKey]);
 
   useEffect(() => {
     if (!note.file_contents) return;
+    const fileContents = note.file_contents;
     let cancelled = false;
     const decryptFile = async () => {
       try {
-        const bytes = Base64.toUint8Array(note.file_contents);
+        const bytes = Base64.toUint8Array(fileContents);
         const decrypted = await decryptBuffer(bytes, decryptionKey);
         if (cancelled) return;
         setDecryptedBlob(new Blob([decrypted as BlobPart]));

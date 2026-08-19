@@ -151,12 +151,11 @@ export default function Home() {
       setCreateErrorMessage("Empty notes are not allowed.");
       return;
     }
-    console.log(key);
-    const ciphertext = encryptStringPayload(cleartext, key);
+    const ciphertext = await encryptStringPayload(cleartext, key);
 
     const formData = new FormData();
     formData.append("contents", ciphertext);
-    formData.append("version", "1");
+    formData.append("version", "2");
     formData.append("destroy_after_read", destroyAfterRead.toString());
     const expiresAt = dayjs().add(expiresAfterHours, "hours").toISOString();
     setCreatedExpiresAt(expiresAt);
@@ -166,7 +165,10 @@ export default function Home() {
       const buf = await file.arrayBuffer();
       const fileEncrypted = await encryptBuffer(new Uint8Array(buf), key);
       formData.append("file_contents", new Blob([fileEncrypted as BlobPart]), file.name);
-      formData.append("file_name", encryptStringPayload(file.name, key));
+      formData.append(
+        "file_name",
+        await encryptStringPayload(file.name, key, "filename")
+      );
     }
 
     const xhr = new XMLHttpRequest();

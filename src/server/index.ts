@@ -6,6 +6,44 @@ const app = new Hono();
 
 const MAX_EXPIRY_DAYS = 30;
 
+app.use("*", async (c, next) => {
+  await next();
+
+  c.header(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "base-uri 'none'",
+      "object-src 'none'",
+      "frame-ancestors 'none'",
+      "form-action 'self'",
+      "script-src 'self' 'wasm-unsafe-eval'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob:",
+      "font-src 'self'",
+      "connect-src 'self'",
+      "worker-src 'self' blob:",
+      "media-src 'self' blob:",
+    ].join("; ")
+  );
+  c.header("Strict-Transport-Security", "max-age=31536000");
+  c.header("Referrer-Policy", "no-referrer");
+  c.header("X-Content-Type-Options", "nosniff");
+  c.header("X-Frame-Options", "DENY");
+  c.header("Cross-Origin-Opener-Policy", "same-origin");
+  c.header("Cross-Origin-Resource-Policy", "same-origin");
+  c.header(
+    "Permissions-Policy",
+    "camera=(), geolocation=(), microphone=(), payment=(), usb=()"
+  );
+
+  const contentType = c.res.headers.get("Content-Type") ?? "";
+  if (c.req.path.startsWith("/api/") || contentType.includes("text/html")) {
+    c.header("Cache-Control", "private, no-store, max-age=0");
+    c.header("Pragma", "no-cache");
+  }
+});
+
 // Health check for Cloud Run
 app.get("/health", (c) => c.text("ok"));
 
@@ -68,8 +106,6 @@ app.post("/api/notes", async (c) => {
 app.get("/api/notes/:id", async (c) => {
   const id = c.req.param("id");
   const peek = c.req.query("peek");
-
-  c.header("Cache-Control", "no-cache");
 
   try {
     const note = await getNote(id);
@@ -157,6 +193,6 @@ app.get("*", async (c) => {
 });
 
 export default {
-  port: process.env.PORT || 3000,
+  port: process.env["PORT"] || 3000,
   fetch: app.fetch,
 };

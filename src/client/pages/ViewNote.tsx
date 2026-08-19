@@ -42,7 +42,7 @@ export default function ViewNote() {
         }
       };
 
-      xhr.onload = () => {
+      xhr.onload = async () => {
         setDownloadProgress(1);
 
         if (xhr.status === 404) {
@@ -52,7 +52,7 @@ export default function ViewNote() {
 
         if (xhr.status === 200) {
           const fetched: ApiNote = JSON.parse(xhr.responseText);
-          processNote(fetched);
+          await processNote(fetched);
           return;
         }
 
@@ -71,15 +71,22 @@ export default function ViewNote() {
     }
   };
 
-  const processNote = (note: ApiNote) => {
+  const processNote = async (note: ApiNote) => {
     let cleartext: string | undefined = undefined;
 
-    if (note.contents) {
-      cleartext = decryptStringPayload(note.contents, key);
-      if (cleartext.length === 0 && (note.file_contents?.length ?? 0) === 0) {
-        setErr("Decryption failed. Your URL is probably malformed.");
-        return;
+    try {
+      if (note.contents) {
+        cleartext = await decryptStringPayload(note.contents, key);
+        if (cleartext.length === 0 && (note.file_contents?.length ?? 0) === 0) {
+          setErr("Decryption failed. Your URL is probably malformed.");
+          return;
+        }
       }
+    } catch {
+      setErr(
+        "Decryption failed. Your URL is probably malformed or the note was modified."
+      );
+      return;
     }
 
     setNote({
