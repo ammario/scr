@@ -1,8 +1,14 @@
 import { Storage } from "@google-cloud/storage";
+import { randomInt } from "node:crypto";
 
 const BUCKET_NAME = "scr-notes";
 const MAX_NOTE_SIZE = 250 << 20; // 250MB
-const NOTE_NAME_CHARSET = "abcdefghijklmnopqrstuvwxyz0123456789";
+// Note IDs are public locators, not secrets. Base62 keeps them URL-unreserved;
+// starting at two characters fits the current working set and the allocator
+// extends IDs on collision, so growth affects length rather than correctness.
+const NOTE_NAME_CHARSET =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const MIN_NOTE_ID_LENGTH = 2;
 
 // Singleton storage client
 let storageClient: Storage | null = null;
@@ -28,7 +34,7 @@ export interface Note {
 }
 
 function randNoteChar(): string {
-  return NOTE_NAME_CHARSET[Math.floor(Math.random() * NOTE_NAME_CHARSET.length)];
+  return NOTE_NAME_CHARSET[randomInt(NOTE_NAME_CHARSET.length)];
 }
 
 /**
@@ -41,7 +47,7 @@ export async function findObjectID(): Promise<string> {
 
   while (true) {
     name += randNoteChar();
-    if (name.length < 4) {
+    if (name.length < MIN_NOTE_ID_LENGTH) {
       continue;
     }
 
@@ -107,9 +113,14 @@ export async function createNote(note: Note): Promise<string | null> {
 
       console.log("Created note:", objectName, "size:", noteJson.length);
       return objectName;
-    } catch (error: any) {
+    } catch (error) {
       // If precondition failed (object exists), try again
-      if (error?.code === 412) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === 412
+      ) {
         continue;
       }
       throw error;

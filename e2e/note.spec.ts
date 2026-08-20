@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
 import * as fs from "fs";
-import * as path from "path";
 import * as crypto from "crypto";
 
 test("Create and view a note", async ({ page }) => {
@@ -21,9 +20,8 @@ test("Create and view a note", async ({ page }) => {
   await page.click('button:has-text("Create")');
 
   // Wait for the note URL to appear
-  const noteUrl = await page.waitForSelector(
-    'textarea[data-testid="note-url"]'
-  );
+  const noteUrl = page.getByTestId("note-url");
+  await expect(noteUrl).toBeVisible();
   const url = await noteUrl.inputValue();
 
   // Navigate to the note URL
@@ -31,7 +29,7 @@ test("Create and view a note", async ({ page }) => {
 
   // Click the "Read Note" button if it exists
   const readNoteButton = page.locator('button[data-testid="read-note-button"]');
-  expect(readNoteButton.isVisible()).toBeTruthy();
+  await expect(readNoteButton).toBeVisible();
 
   await readNoteButton.click();
   await page.waitForLoadState("networkidle");
@@ -44,7 +42,7 @@ test("Create and view a note", async ({ page }) => {
 
 test("Create and view a note with a binary file attachment", async ({
   page,
-}) => {
+}, testInfo) => {
   // Navigate to the home page
   await page.goto("http://localhost:3010", {
     timeout: 10000,
@@ -56,7 +54,7 @@ test("Create and view a note with a binary file attachment", async ({
   await page.fill("textarea#secret-input", noteValue);
 
   // Create a temporary binary file
-  const tempFilePath = path.join(__dirname, "temp_binary_file.bin");
+  const tempFilePath = testInfo.outputPath("temp_binary_file.bin");
   const fileContent = crypto.randomBytes(1024); // 1KB of random data
   fs.writeFileSync(tempFilePath, fileContent);
 
@@ -69,9 +67,8 @@ test("Create and view a note with a binary file attachment", async ({
   await page.click('button:has-text("Create")');
 
   // Wait for the note URL to appear
-  const noteUrl = await page.waitForSelector(
-    'textarea[data-testid="note-url"]'
-  );
+  const noteUrl = page.getByTestId("note-url");
+  await expect(noteUrl).toBeVisible();
   const url = await noteUrl.inputValue();
 
   // Navigate to the note URL

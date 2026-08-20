@@ -1,9 +1,9 @@
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import { decryptStringPayload } from "@/util/crypto";
+import { createNoteDecryptor } from "@/util/crypto";
 
 import type { ApiNote } from "@/src/types/api";
 import NoteView from "@/src/client/components/NoteView";
@@ -16,12 +16,13 @@ export default function ViewNote() {
 
   // Get the key from the hash
   const key = location.hash.slice(1); // Remove the leading #
+  const decryptor = useMemo(() => createNoteDecryptor(key), [key]);
 
   const [err, setErr] = useState<string>();
   const [note, setNote] = useState<
-    (ApiNote & {
+    ApiNote & {
       cleartext?: string;
-    })
+    }
   >();
 
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
@@ -32,7 +33,7 @@ export default function ViewNote() {
       xhr.open(
         "GET",
         "/api/notes/" + noteId + (peek ? "?peek=true" : ""),
-        true
+        true,
       );
 
       xhr.onprogress = (event) => {
@@ -76,7 +77,7 @@ export default function ViewNote() {
 
     try {
       if (note.contents) {
-        cleartext = await decryptStringPayload(note.contents, key);
+        cleartext = await decryptor.decryptString(note.contents);
         if (cleartext.length === 0 && (note.file_contents?.length ?? 0) === 0) {
           setErr("Decryption failed. Your URL is probably malformed.");
           return;
@@ -84,7 +85,7 @@ export default function ViewNote() {
       }
     } catch {
       setErr(
-        "Decryption failed. Your URL is probably malformed or the note was modified."
+        "Decryption failed. Your URL is probably malformed or the note was modified.",
       );
       return;
     }
@@ -100,8 +101,6 @@ export default function ViewNote() {
     retrieveNote(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [noteId]);
-
-
 
   return (
     <div className="space-y-4 w-full max-w-3xl">
@@ -121,7 +120,7 @@ export default function ViewNote() {
           onRead={() => retrieveNote(false)}
           file={
             note.file_name && note.file_contents ? (
-              <EncryptedFileCard note={note} decryptionKey={key} />
+              <EncryptedFileCard note={note} decryptor={decryptor} />
             ) : undefined
           }
           onReply={() => {

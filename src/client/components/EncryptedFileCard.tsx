@@ -4,21 +4,21 @@ import { Base64 } from "js-base64";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import DecryptedFileCard from "@/src/client/components/DecryptedFileCard";
-import { decryptBuffer, decryptStringPayload } from "@/util/crypto";
+import { isVersionedStringPayload, type NoteDecryptor } from "@/util/crypto";
 import type { ApiNote } from "@/src/types/api";
 
 export default function EncryptedFileCard({
   note,
-  decryptionKey,
+  decryptor,
 }: {
   note: ApiNote;
-  decryptionKey: string;
+  decryptor: NoteDecryptor;
 }) {
   const [decryptionError, setDecryptionError] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [decryptedBlob, setDecryptedBlob] = useState<Blob | undefined>(
-    undefined
+    undefined,
   );
 
   const [decryptedFileName, setDecryptedFileName] = useState("");
@@ -28,17 +28,16 @@ export default function EncryptedFileCard({
     let cancelled = false;
     const decryptFileName = async () => {
       try {
-        const decrypted = await decryptStringPayload(
+        const decrypted = await decryptor.decryptString(
           note.file_name!,
-          decryptionKey,
-          "filename"
+          "filename",
         );
         if (!cancelled) setDecryptedFileName(decrypted || note.file_name!);
       } catch {
         if (cancelled) return;
-        if (note.file_name!.startsWith("scr:v2:")) {
+        if (isVersionedStringPayload(note.file_name!)) {
           setDecryptionError(
-            "Failed to decrypt the filename. The note might have been modified."
+            "Failed to decrypt the filename. The note might have been modified.",
           );
         } else {
           // Some legacy notes stored an unencrypted filename.
@@ -51,7 +50,7 @@ export default function EncryptedFileCard({
     return () => {
       cancelled = true;
     };
-  }, [note.file_name, decryptionKey]);
+  }, [note.file_name, decryptor]);
 
   useEffect(() => {
     if (!note.file_contents) return;
@@ -60,14 +59,14 @@ export default function EncryptedFileCard({
     const decryptFile = async () => {
       try {
         const bytes = Base64.toUint8Array(fileContents);
-        const decrypted = await decryptBuffer(bytes, decryptionKey);
+        const decrypted = await decryptor.decryptBuffer(bytes);
         if (cancelled) return;
         setDecryptedBlob(new Blob([decrypted as BlobPart]));
       } catch (error) {
         console.error("Failed to decrypt file contents:", error);
         if (cancelled) return;
         setDecryptionError(
-          "Failed to decrypt file contents. The decryption key might be incorrect."
+          "Failed to decrypt file contents. The decryption key might be incorrect.",
         );
       }
     };
@@ -76,7 +75,7 @@ export default function EncryptedFileCard({
     return () => {
       cancelled = true;
     };
-  }, [note.file_contents, decryptionKey]);
+  }, [note.file_contents, decryptor]);
 
   if (!note.file_name || !note.file_contents) return null;
 
@@ -102,7 +101,5 @@ export default function EncryptedFileCard({
     );
   }
 
-  return (
-    <DecryptedFileCard name={decryptedFileName} blob={decryptedBlob} />
-  );
+  return <DecryptedFileCard name={decryptedFileName} blob={decryptedBlob} />;
 }

@@ -23,11 +23,7 @@ import { cn } from "@/lib/utils";
 import NoteView from "@/src/client/components/NoteView";
 import DecryptedFileCard from "@/src/client/components/DecryptedFileCard";
 import CreatedNoteBox from "@/src/client/components/CreatedNoteBox";
-import {
-  encryptBuffer,
-  encryptStringPayload,
-  generateUserKey,
-} from "@/util/crypto";
+import { createNoteEncryptor, generateUserKey } from "@/util/crypto";
 
 interface createdNote {
   id: string;
@@ -88,23 +84,19 @@ function FileInput({ onFileChange }: FileInputProps) {
               "h-8 border rounded px-2",
               "cursor-pointer transition-colors",
               "flex items-center gap-1.5",
-              fileName 
-                ? "bg-accent/20 border-accent text-foreground" 
-                : "bg-input border-border text-muted-foreground hover:text-foreground hover:border-foreground/50"
+              fileName
+                ? "bg-accent/20 border-accent text-foreground"
+                : "bg-input border-border text-muted-foreground hover:text-foreground hover:border-foreground/50",
             )}
             onClick={() => fileInputRef.current?.click()}
           >
             <Paperclip className="size-4" />
             {fileName && (
-              <span className="text-xs truncate max-w-[100px]">
-                {fileName}
-              </span>
+              <span className="text-xs truncate max-w-[100px]">{fileName}</span>
             )}
           </div>
         </TooltipTrigger>
-        <TooltipContent>
-          {fileName ? fileName : "Attach file"}
-        </TooltipContent>
+        <TooltipContent>{fileName ? fileName : "Attach file"}</TooltipContent>
       </Tooltip>
       <input
         type="file"
@@ -129,7 +121,7 @@ export default function Home() {
 
   const [file, setFile] = useState<File | null>(null);
   const [maxAllowedDuration, setMaxAllowedDuration] = useState<number>(
-    maxUploadDuration(0)
+    maxUploadDuration(0),
   ); // Default to 30 days
 
   const key = useMemo(() => generateUserKey(), []);
@@ -151,11 +143,14 @@ export default function Home() {
       setCreateErrorMessage("Empty notes are not allowed.");
       return;
     }
-    const ciphertext = await encryptStringPayload(cleartext, key);
+    // A note-scoped session shares one Argon2 derivation and salt across the
+    // text, filename, and file while deriving independent encryption keys.
+    const encryptor = createNoteEncryptor(key);
+    const ciphertext = await encryptor.encryptString(cleartext);
 
     const formData = new FormData();
     formData.append("contents", ciphertext);
-    formData.append("version", "2");
+    formData.append("version", encryptor.version.toString());
     formData.append("destroy_after_read", destroyAfterRead.toString());
     const expiresAt = dayjs().add(expiresAfterHours, "hours").toISOString();
     setCreatedExpiresAt(expiresAt);
@@ -163,11 +158,15 @@ export default function Home() {
 
     if (file) {
       const buf = await file.arrayBuffer();
-      const fileEncrypted = await encryptBuffer(new Uint8Array(buf), key);
-      formData.append("file_contents", new Blob([fileEncrypted as BlobPart]), file.name);
+      const fileEncrypted = await encryptor.encryptBuffer(new Uint8Array(buf));
+      formData.append(
+        "file_contents",
+        new Blob([fileEncrypted as BlobPart]),
+        file.name,
+      );
       formData.append(
         "file_name",
-        await encryptStringPayload(file.name, key, "filename")
+        await encryptor.encryptString(file.name, "filename"),
       );
     }
 
@@ -193,7 +192,7 @@ export default function Home() {
         console.log("created", id);
       } else {
         setCreateErrorMessage(
-          `HTTP error! status: ${xhr.status}\n${xhr.responseText}`
+          `HTTP error! status: ${xhr.status}\n${xhr.responseText}`,
         );
       }
       setUploadProgress(0); // Reset progress
@@ -210,7 +209,7 @@ export default function Home() {
   const expirationOptions = [1, 8, 24, 24 * 3, 24 * 7, maxAllowedDuration]
     .filter(
       (hours, index, self) =>
-        hours <= maxAllowedDuration && self.indexOf(hours) === index
+        hours <= maxAllowedDuration && self.indexOf(hours) === index,
     )
     .sort((a, b) => a - b);
 
@@ -228,7 +227,7 @@ export default function Home() {
           <AlertDescription>{createErrorMessage}</AlertDescription>
         </Alert>
       )}
-      
+
       {createdNote === undefined ? (
         <form
           noValidate
@@ -264,7 +263,7 @@ export default function Home() {
                       "h-8 w-8 flex items-center justify-center rounded border transition-colors",
                       destroyAfterRead
                         ? "bg-destructive/20 border-destructive text-destructive"
-                        : "bg-input border-border text-muted-foreground hover:text-foreground hover:border-foreground/50"
+                        : "bg-input border-border text-muted-foreground hover:text-foreground hover:border-foreground/50",
                     )}
                   >
                     {destroyAfterRead ? (
@@ -275,7 +274,9 @@ export default function Home() {
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {destroyAfterRead ? "Will destroy after reading" : "Destroy after read (off)"}
+                  {destroyAfterRead
+                    ? "Will destroy after reading"
+                    : "Destroy after read (off)"}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -288,14 +289,19 @@ export default function Home() {
                   <div>
                     <Select
                       value={expiresAfterHours.toString()}
-                      onValueChange={(value) => setExpiresAfterHours(Number(value))}
+                      onValueChange={(value) =>
+                        setExpiresAfterHours(Number(value))
+                      }
                     >
                       <SelectTrigger id="expires-after" className="w-auto h-8">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {expirationOptions.map((hours, index) => (
-                          <SelectItem key={`hours-${index}`} value={hours.toString()}>
+                          <SelectItem
+                            key={`hours-${index}`}
+                            value={hours.toString()}
+                          >
                             {formatHours(hours)}
                           </SelectItem>
                         ))}
@@ -303,9 +309,7 @@ export default function Home() {
                     </Select>
                   </div>
                 </TooltipTrigger>
-                <TooltipContent>
-                  Expires after
-                </TooltipContent>
+                <TooltipContent>Expires after</TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
@@ -336,7 +340,11 @@ export default function Home() {
                 dayjs().add(expiresAfterHours, "hours").toISOString()
               }
               cleartext={cleartext}
-              file={file ? <DecryptedFileCard name={file.name} blob={file} /> : undefined}
+              file={
+                file ? (
+                  <DecryptedFileCard name={file.name} blob={file} />
+                ) : undefined
+              }
               isPreview
             />
           </div>

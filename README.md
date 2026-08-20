@@ -6,13 +6,25 @@ I made it for sharing passwords, secret keys, and messages that I may not want t
 
 ## Security
 
-s.cr stores the encryption key within your URL fragment (the part after the #). This key is never sent to the server, so the site operators have no way of decrypting the content. New notes use a 128-bit key generated with the browser's cryptographically secure random number generator. HKDF-SHA-256 derives separate keys for note text, filenames, and files, which are encrypted with AES-256-GCM. The client retains read compatibility with original v1 links and earlier v2 links that use 256-bit fragment keys.
+s.cr stores the encryption key in the URL fragment (the part after `#`). Browsers
+do not send fragments in HTTP requests, so the key is not sent to the server. New
+v3 notes use an 84-bit, 14-character random base64url key and a public, unique
+128-bit salt. Argon2id (8 MiB, one pass, one lane) raises the cost of every key
+guess; HKDF-SHA-256 then derives separate AES-256-GCM keys for note text,
+filenames, and files. Ciphertexts are self-describing and authenticated.
+
+The shorter v3 key targets an economic attack cost rather than claiming 128 bits
+of conventional security strength. The threat model, calculation, suite layouts,
+and migration rules are documented in [docs/cryptography.md](docs/cryptography.md).
+The client retains read compatibility with v1 and all v2 links, including both
+128-bit and 256-bit v2 fragment keys.
 
 But, you can only trust this site as much as you trust these claims.
 
 ## Development
 
-This is a full-stack Next.js application deployed to Google Cloud Run with GCS for storage.
+This is a Hono server and React SPA deployed to Google Cloud Run with GCS for
+storage.
 
 ### Prerequisites
 
@@ -45,10 +57,10 @@ make deploy
 
 ## Architecture
 
-- **Frontend**: Next.js with React, Emotion CSS
-- **Backend**: Next.js API routes
+- **Frontend**: React, React Router, and Vite
+- **Backend**: Hono on Bun
 - **Storage**: Google Cloud Storage (`scr-notes` bucket)
-- **Deployment**: Google Cloud Run (standalone Next.js)
+- **Deployment**: Google Cloud Run
 
 ## Testing
 

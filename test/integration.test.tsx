@@ -29,7 +29,7 @@ import {
 beforeAll(() => {
   if (!process.env["GOOGLE_APPLICATION_CREDENTIALS"]) {
     console.warn(
-      "GOOGLE_APPLICATION_CREDENTIALS not set - GCS tests will fail"
+      "GOOGLE_APPLICATION_CREDENTIALS not set - GCS tests will fail",
     );
   }
 });
@@ -48,7 +48,7 @@ describe("GCS Backend Integration", () => {
       });
 
       expect(id).toBeDefined();
-      expect(id.length).toBeGreaterThanOrEqual(4);
+      expect(id.length).toBeGreaterThanOrEqual(2);
 
       const retrieved = await getNote(id);
       expect(retrieved).toBeDefined();
@@ -147,7 +147,7 @@ describe("GCS Backend Integration", () => {
       const encryptedContent = await encryptStringPayload(originalContent, key);
       const id = await createTestNote({
         contents: encryptedContent,
-        version: 2,
+        version: 3,
       });
 
       // Retrieve and decrypt
@@ -156,7 +156,7 @@ describe("GCS Backend Integration", () => {
 
       const decryptedContent = await decryptStringPayload(
         retrieved!.contents,
-        key
+        key,
       );
       expect(decryptedContent).toBe(originalContent);
     });
@@ -170,14 +170,14 @@ describe("GCS Backend Integration", () => {
       const encryptedFileName = await encryptStringPayload(
         "photo.jpg",
         key,
-        "filename"
+        "filename",
       );
 
       const id = await createTestNote({
         contents: await encryptStringPayload("Note with encrypted file", key),
         file_name: encryptedFileName,
         file_contents: Buffer.from(encryptedFile).toString("base64"),
-        version: 2,
+        version: 3,
       });
 
       // Retrieve and decrypt
@@ -188,15 +188,18 @@ describe("GCS Backend Integration", () => {
       const decryptedFileName = await decryptStringPayload(
         retrieved!.file_name!,
         key,
-        "filename"
+        "filename",
       );
       expect(decryptedFileName).toBe("photo.jpg");
 
       // Decrypt file contents
-      const retrievedFileBytes = Buffer.from(retrieved!.file_contents!, "base64");
+      const retrievedFileBytes = Buffer.from(
+        retrieved!.file_contents!,
+        "base64",
+      );
       const decryptedFile = await decryptBuffer(
         new Uint8Array(retrievedFileBytes),
-        key
+        key,
       );
       expect(decryptedFile).toEqual(fileContent);
     });
@@ -227,13 +230,13 @@ describe("GCS Backend Integration", () => {
       expect(ids.size).toBe(5);
     });
 
-    it("should generate IDs with minimum length of 4", async () => {
+    it("should generate URL-safe IDs with minimum length of 2", async () => {
       const id = await createTestNote({
         contents: "Short ID test",
       });
 
-      expect(id.length).toBeGreaterThanOrEqual(4);
-      expect(/^[a-z0-9]+$/.test(id)).toBe(true);
+      expect(id.length).toBeGreaterThanOrEqual(2);
+      expect(/^[A-Za-z0-9]+$/.test(id)).toBe(true);
     });
   });
 });
@@ -250,7 +253,7 @@ describe("End-to-End Flow Simulation", () => {
       contents: encryptedContent,
       destroy_after_read: true,
       expires_at: new Date(Date.now() + 86400000).toISOString(), // 24 hours
-      version: 2,
+      version: 3,
     });
 
     // Step 2: Construct shareable URL (simulating what the frontend would do)
@@ -286,14 +289,14 @@ describe("End-to-End Flow Simulation", () => {
     const encryptedFileName = await encryptStringPayload(
       "large-file.bin",
       key,
-      "filename"
+      "filename",
     );
 
     const noteId = await createTestNote({
       contents: await encryptStringPayload(noteText, key),
       file_name: encryptedFileName,
       file_contents: Buffer.from(encryptedFile).toString("base64"),
-      version: 2,
+      version: 3,
     });
 
     // Retrieve and verify
@@ -307,14 +310,14 @@ describe("End-to-End Flow Simulation", () => {
     const decryptedFileName = await decryptStringPayload(
       retrieved!.file_name!,
       key,
-      "filename"
+      "filename",
     );
     expect(decryptedFileName).toBe("large-file.bin");
 
     const retrievedFileBytes = Buffer.from(retrieved!.file_contents!, "base64");
     const decryptedFile = await decryptBuffer(
       new Uint8Array(retrievedFileBytes),
-      key
+      key,
     );
     expect(decryptedFile).toEqual(fileData);
   });
